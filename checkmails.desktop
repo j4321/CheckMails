@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0.0
+Encoding=UTF-8
+Comment="System tray unread mails checker"
+Name=CheckMails
+Exec=checkmails
+Terminal=false
+Type=Application
+Categories=Utility
+StartupNotify=false
+Icon=checkmails
