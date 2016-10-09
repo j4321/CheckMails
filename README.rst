@@ -1,6 +1,6 @@
 Checkmails - System tray unread mail checker
 =============================================
-Copyright 2016 Juliette Monsel <j_4321@sfr.fr>
+Copyright 2016 Juliette Monsel <j_4321@hotmail.fr>
 
 CheckMails periodically looks for unread mails and displays the total number 
 of unread mails in the system tray icon. Several mailboxes can be configured. 
@@ -16,14 +16,12 @@ Install
 -------
 
 First, install the missing dependencies among:
-- Tkinter (Python wrapper for Tk)
-- Tktray <https://code.google.com/archive/p/tktray/downloads> 
-- libnotify and a notification server if your desktop environment does not
-  provide one.
-  (see <https://wiki.archlinux.org/index.php/Desktop_notifications> for 
-   more details)
-- PyCrypto <https://pypi.python.org/pypi/pycrypto>
-- Pillow <https://pypi.python.org/pypi/Pillow> 
+    - Tkinter (Python wrapper for Tk)
+    - Tktray https://code.google.com/archive/p/tktray/downloads
+    - libnotify and a notification server if your desktop environment does not
+      provide one. (see https://wiki.archlinux.org/index.php/Desktop_notifications for more details)
+    - PyCrypto https://pypi.python.org/pypi/pycrypto
+    - Pillow https://pypi.python.org/pypi/Pillow
 
 For instance, in Ubuntu/Debian you will need to install the following packages:
 python3-tk, tk-tktray, libnotify and the notification server of your choice, 
@@ -34,9 +32,7 @@ tk, tktray (AUR), libnotify and the notification server of your choice,
 python-crypto, python-pillow
 
 Then install the application:
-
-::
-
+:: 
     $ sudo python3 setup.py install
 
 You can now launch it from `Menu > Utility > CheckMails`. You can launch
