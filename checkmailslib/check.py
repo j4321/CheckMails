@@ -326,7 +326,7 @@ class CheckMails(Tk):
             self.after_cancel(timeout_id)
             if self.notif != _("Checking...") + "/n":
                 notif = self.notif
-                notif += "%s : %i, " % (box, _("Timed out, reconnecting"))
+                notif += "%s : %s, " % (box, _("Timed out, reconnecting"))
                 Popen(["notify-send", "-i", IMAGE2, _("Unread mails"), notif])
                 nbtot = 0
                 for nb in self.nb_unread.values():
