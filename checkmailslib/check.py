@@ -51,6 +51,7 @@ class CheckMails(Tk):
         self.icon = Icon(self, image=self.img)
         self.icon.menu.add_command(label=_("Check"), command=self.check_mails)
         self.icon.menu.add_command(label=_("Reconnect"), command=self.reconnect)
+        self.icon.menu.add_command(label=_("Suspend"), command=self.start_stop)
         self.icon.menu.add_separator()
         self.icon.menu.add_command(label=_("Change password"), command=self.change_password)
         self.icon.menu.add_command(label=_("Reset password"), command=self.reset_password)
@@ -95,6 +96,23 @@ class CheckMails(Tk):
 
         self.mainloop()
 
+    def start_stop(self):
+        """ Suspend checks """
+        if self.icon.menu.entrycget(2, "label") == _("Suspend"):
+            self.icon.after_cancel(self.check_id)
+            self.icon.after_cancel(self.timer_id)
+            self.icon.after_cancel(self.notif_id)
+            self.icon.after_cancel(self.internet_id)
+            self.img.configure(file=IMAGE)
+            self.icon.menu.entryconfigure(2, label=_("Restart"))
+            self.icon.menu.entryconfigure(0, state="disabled")
+            self.icon.menu.entryconfigure(1, state="disabled")
+        else:
+            self.icon.menu.entryconfigure(2, label=_("Suspend"))
+            self.icon.menu.entryconfigure(0, state="normal")
+            self.icon.menu.entryconfigure(1, state="normal")
+            self.reconnect()
+
     def about(self):
         """ Show about dialog """
         About(self)
@@ -106,9 +124,12 @@ class CheckMails(Tk):
         self.check_id = self.icon.after(20000, self.launch_check, False)
 
     def display(self, event):
-        notif = self.notif
-        if not notif:
-            notif = _("Checking...")
+        if self.icon.menu.entrycget(2, "label") == _("Suspend"):
+            notif = self.notif
+            if not notif:
+                notif = _("Checking...")
+        else:
+            notif = _("Check suspended")
         Popen(["notify-send", "-i", IMAGE2, _("Unread mails"), notif])
 
     def reset_conn(self):
@@ -127,7 +148,7 @@ class CheckMails(Tk):
 
     def get_info_conn(self):
         """ Retrieve connection information from the encrypted files and
-            launch checks. """
+            launch checks (if they are noit suspended). """
         mailboxes = CONFIG.get("Mailboxes", "active").split(", ")
         while "" in mailboxes:
             mailboxes.remove("")
@@ -144,7 +165,7 @@ class CheckMails(Tk):
 
         if not self.info_conn:
             Popen(["notify-send", "-i", IMAGE2, _("No active mailbox"), _("Use the mailbox manager to confugure a mailbox.")])
-        else:
+        elif self.icon.menu.entrycget(2, "label") == _("Suspend"):
             for box in self.info_conn:
                 self.connect(box)
             self.icon.after_cancel(self.check_id)
@@ -165,7 +186,8 @@ class CheckMails(Tk):
         Config(self)
         self.time = CONFIG.getint("General", "time")
         self.timeout = CONFIG.getint("General", "timeout")
-        self.check_mails(False)
+        if self.icon.menu.entrycget(2, "label") == _("Suspend"):
+            self.check_mails(False)
 
     def manage_mailboxes(self):
         """ Open the mailbox manager. """
@@ -178,7 +200,6 @@ class CheckMails(Tk):
             m = Manager(self, self.pwd)
             self.wait_window(m)
             self.reset_conn()
-
 
     def connect_mailbox(self, box):
         """ Connect to the mailbox box and select the folder. """

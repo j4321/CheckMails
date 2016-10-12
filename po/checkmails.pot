@@ -17,29 +17,29 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: checkmailslib/config.py:34 checkmailslib/check.py:59
+#: checkmailslib/config.py:34 checkmailslib/check.py:60
 msgid "Preferences"
 msgstr ""
 
-#: checkmailslib/config.py:39
+#: checkmailslib/config.py:40
 msgid "Time between two checks"
 msgstr ""
 
-#: checkmailslib/config.py:40
+#: checkmailslib/config.py:44
 msgid ""
 "Maximum time allowed for login or check\n"
 "(then the connection is reset)"
 msgstr ""
 
-#: checkmailslib/config.py:56
+#: checkmailslib/config.py:61
 msgid "Language"
 msgstr ""
 
-#: checkmailslib/config.py:66 checkmailslib/manager.py:180
+#: checkmailslib/config.py:73 checkmailslib/manager.py:180
 msgid "Cancel"
 msgstr ""
 
-#: checkmailslib/config.py:80
+#: checkmailslib/config.py:87
 msgid "The language setting will take effect after restarting the application"
 msgstr ""
 
@@ -97,23 +97,23 @@ msgid "Login information"
 msgstr ""
 
 #: checkmailslib/manager.py:166
-msgid "Mailbox name:"
+msgid "Mailbox name"
 msgstr ""
 
 #: checkmailslib/manager.py:167
-msgid "IMAP server:"
+msgid "IMAP server"
 msgstr ""
 
 #: checkmailslib/manager.py:168
-msgid "Login:"
+msgid "Login"
 msgstr ""
 
-#: checkmailslib/manager.py:169
-msgid "Password:"
+#: checkmailslib/manager.py:169 checkmailslib/check.py:425
+msgid "Password"
 msgstr ""
 
 #: checkmailslib/manager.py:170
-msgid "Folder to check:"
+msgid "Folder to check"
 msgstr ""
 
 #: checkmailslib/check.py:52
@@ -124,119 +124,129 @@ msgstr ""
 msgid "Reconnect"
 msgstr ""
 
-#: checkmailslib/check.py:55
-msgid "Change password"
+#: checkmailslib/check.py:54 checkmailslib/check.py:101
+#: checkmailslib/check.py:111 checkmailslib/check.py:127
+#: checkmailslib/check.py:168 checkmailslib/check.py:189
+msgid "Suspend"
 msgstr ""
 
 #: checkmailslib/check.py:56
+msgid "Change password"
+msgstr ""
+
+#: checkmailslib/check.py:57
 msgid "Reset password"
 msgstr ""
 
-#: checkmailslib/check.py:58
+#: checkmailslib/check.py:59
 msgid "Manage mailboxes"
 msgstr ""
 
-#: checkmailslib/check.py:60
+#: checkmailslib/check.py:61
 msgid "About"
 msgstr ""
 
-#: checkmailslib/check.py:62
+#: checkmailslib/check.py:63
 msgid "Quit"
 msgstr ""
 
-#: checkmailslib/check.py:111 checkmailslib/check.py:327
-#: checkmailslib/check.py:342 checkmailslib/check.py:364
+#: checkmailslib/check.py:107
+msgid "Restart"
+msgstr ""
+
+#: checkmailslib/check.py:130 checkmailslib/check.py:348
+#: checkmailslib/check.py:363 checkmailslib/check.py:385
 msgid "Checking..."
 msgstr ""
 
-#: checkmailslib/check.py:112 checkmailslib/check.py:330
-#: checkmailslib/check.py:366 checkmailslib/check.py:368
+#: checkmailslib/check.py:132
+msgid "Check suspended"
+msgstr ""
+
+#: checkmailslib/check.py:133 checkmailslib/check.py:351
+#: checkmailslib/check.py:387 checkmailslib/check.py:389
 msgid "Unread mails"
 msgstr ""
 
-#: checkmailslib/check.py:146
+#: checkmailslib/check.py:167
 msgid "No active mailbox"
 msgstr ""
 
-#: checkmailslib/check.py:146
+#: checkmailslib/check.py:167
 msgid "Use the mailbox manager to confugure a mailbox."
 msgstr ""
 
-#: checkmailslib/check.py:200 checkmailslib/check.py:222
-#: checkmailslib/check.py:236 checkmailslib/check.py:401
-#: checkmailslib/check.py:427 checkmailslib/check.py:470
-#: checkmailslib/check.py:472
+#: checkmailslib/check.py:221 checkmailslib/check.py:243
+#: checkmailslib/check.py:257 checkmailslib/check.py:422
+#: checkmailslib/check.py:448 checkmailslib/check.py:491
+#: checkmailslib/check.py:493
 msgid "Error"
 msgstr ""
 
-#: checkmailslib/check.py:201
+#: checkmailslib/check.py:222
 #, python-format
 msgid "Incorrect login or password for %(mailbox)s"
 msgstr ""
 
-#: checkmailslib/check.py:223
+#: checkmailslib/check.py:244
 #, python-format
 msgid "Wrong IMAP server for %(mailbox)s."
 msgstr ""
 
-#: checkmailslib/check.py:237
+#: checkmailslib/check.py:258
 msgid "No internet connection."
 msgstr ""
 
-#: checkmailslib/check.py:329
+#: checkmailslib/check.py:350
 msgid "Timed out, reconnecting"
 msgstr ""
 
-#: checkmailslib/check.py:368 checkmailslib/check.py:369
-#: checkmailslib/check.py:371
+#: checkmailslib/check.py:389 checkmailslib/check.py:390
+#: checkmailslib/check.py:392
 msgid "No unread mail"
 msgstr ""
 
-#: checkmailslib/check.py:401 checkmailslib/check.py:472
+#: checkmailslib/check.py:422 checkmailslib/check.py:493
 msgid "Incorrect password!"
 msgstr ""
 
-#: checkmailslib/check.py:404
-msgid "Password"
-msgstr ""
-
-#: checkmailslib/check.py:406
+#: checkmailslib/check.py:427
 msgid "Enter password"
 msgstr ""
 
-#: checkmailslib/check.py:427 checkmailslib/check.py:470
+#: checkmailslib/check.py:448 checkmailslib/check.py:491
 msgid "Passwords do not match!"
 msgstr ""
 
-#: checkmailslib/check.py:431
+#: checkmailslib/check.py:452
 msgid "Set password"
 msgstr ""
 
-#: checkmailslib/check.py:433
+#: checkmailslib/check.py:454
 msgid "Enter master password"
 msgstr ""
 
-#: checkmailslib/check.py:436
+#: checkmailslib/check.py:457
 msgid "Confirm master password"
 msgstr ""
 
-#: checkmailslib/check.py:477
+#: checkmailslib/check.py:498
 msgid "Old password"
 msgstr ""
 
-#: checkmailslib/check.py:480
+#: checkmailslib/check.py:501
 msgid "New password"
 msgstr ""
 
-#: checkmailslib/check.py:483
+#: checkmailslib/check.py:504
 msgid "Confirm password"
 msgstr ""
 
-#: checkmailslib/check.py:494
+#: checkmailslib/check.py:515
 msgid "Confirmation"
 msgstr ""
 
-#: checkmailslib/check.py:494
+#: checkmailslib/check.py:515
 msgid ""
 "The reset of the password will erase all the stored mailbox connection "
 "information"

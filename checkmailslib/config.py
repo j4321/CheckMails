@@ -36,8 +36,13 @@ class Config(Toplevel):
         # validation of the entries : only numbers are allowed
         self._validate_entry_nb = self.register(self.validate_entry_nb)
 
-        Label(self, text=_("Time between two checks")).grid(row=0, column=0, padx=(10,4), pady=(10,4))
-        Label(self, text=_("Maximum time allowed for login or check\n(then the connection is reset)")).grid(row=1, column=0, padx=(10,4), pady=4)
+        Label(self,
+              text=_("Time between two checks")).grid(row=0, column=0,
+                                                      padx=(10,4), pady=(10,4),
+                                                      sticky="e")
+        Label(self, justify="right",
+              text=_("Maximum time allowed for login or check\n\
+(then the connection is reset)")).grid(row=1, column=0, padx=(10,4), pady=4, sticky="e")
         self.time_entry = Entry(self, width=5, justify="center",
                                 validate="key",
                                 validatecommand=(self._validate_entry_nb, "%P"))
@@ -53,18 +58,20 @@ class Config(Toplevel):
 
         frame = Frame(self)
         frame.grid(row=2,columnspan=3, padx=6, pady=(0,6))
-        Label(frame, text=_("Language")).grid(row=0, column=0, padx=4, pady=4)
-        self.lang = StringVar(self, CONFIG.get("General","language"))
+        Label(frame, text=_("Language")).grid(row=0, column=0, padx=8, pady=4)
+        lang = {"fr":"Français", "en":"English"}
+        self.lang = StringVar(self, lang[CONFIG.get("General","language")])
         menu_lang = Menu(frame, tearoff=False)
-        Menubutton(frame, menu=menu_lang,
-                   textvariable=self.lang).grid(row=0, column=1, padx=4, pady=4)
+        Menubutton(frame, menu=menu_lang, width=9,
+                   textvariable=self.lang).grid(row=0, column=1, padx=8, pady=4)
         menu_lang.add_radiobutton(label="English", value="English",
                                   variable=self.lang, command=self.translate)
         menu_lang.add_radiobutton(label="Français", value="Français",
                                   variable=self.lang, command=self.translate)
-        Button(frame, text="Ok", command=self.ok).grid(row=1, column=0, padx=4, pady=4)
-        Button(frame, text=_("Cancel"), command=self.destroy).grid(row=1, column=1,
-                                                                   padx=4, pady=4)
+        Button(frame, text="Ok", command=self.ok).grid(row=1, column=0,
+                                                       padx=8, pady=4)
+        Button(frame, text=_("Cancel"),  command=self.destroy).grid(row=1, column=1,
+                                                                    padx=4, pady=4)
 
     def ok(self):
         time = float(self.time_entry.get())*60000
