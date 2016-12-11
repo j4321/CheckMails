@@ -19,11 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Configuration dialog
 """
-
-from checkmailslib.constants import CONFIG, LANG, save_config
-from tkinter import Toplevel, Menu, StringVar
+from re import search
+from os.path import expanduser, join
+from os import listdir
+from checkmailslib.constants import CONFIG, LANG, save_config, IMAGE, PREV
+from PIL import Image, ImageDraw, ImageFont
+from tkinter import Toplevel, Menu, StringVar, PhotoImage
 from tkinter.messagebox import showinfo
-from tkinter.ttk import Label, Button, Entry, Menubutton, Frame
+from tkinter.ttk import Label, Button, Entry, Menubutton, Frame, Style, Combobox
 _ = LANG.gettext
 
 class Config(Toplevel):
@@ -33,9 +36,16 @@ class Config(Toplevel):
         Toplevel.__init__(self, master)
         self.title(_("Preferences"))
 
+        style = Style(self)
+        style.map("TCombobox",
+                  fieldbackground=[('readonly','white')],
+                  selectbackground=[('readonly', 'white')],
+                  selectforeground=[('readonly', 'black')])
+
         # validation of the entries : only numbers are allowed
         self._validate_entry_nb = self.register(self.validate_entry_nb)
 
+        # Times
         Label(self,
               text=_("Time between two checks")).grid(row=0, column=0,
                                                       padx=(10,4), pady=(10,4),
@@ -58,20 +68,62 @@ class Config(Toplevel):
 
         frame = Frame(self)
         frame.grid(row=2,columnspan=3, padx=6, pady=(0,6))
-        Label(frame, text=_("Language")).grid(row=0, column=0, padx=8, pady=4)
+        # Language
+        Label(frame, text=_("Language")).grid(row=0, column=0,
+                                              padx=8, pady=4, sticky="e")
         lang = {"fr":"Français", "en":"English"}
         self.lang = StringVar(self, lang[CONFIG.get("General","language")])
         menu_lang = Menu(frame, tearoff=False)
         Menubutton(frame, menu=menu_lang, width=9,
-                   textvariable=self.lang).grid(row=0, column=1, padx=8, pady=4)
+                   textvariable=self.lang).grid(row=0, column=1,
+                                                padx=8, pady=4, sticky="w")
         menu_lang.add_radiobutton(label="English", value="English",
                                   variable=self.lang, command=self.translate)
         menu_lang.add_radiobutton(label="Français", value="Français",
                                   variable=self.lang, command=self.translate)
-        Button(frame, text="Ok", command=self.ok).grid(row=1, column=0,
+        # Font
+        local_path = join(expanduser("~"), ".fonts")
+        sys_path = "/usr/share/fonts/TTF"
+        local_fonts = listdir(local_path)
+        self.ttf_fonts = {f.split(".")[0]: join(local_path, f)
+                     for f in local_fonts if search(r".(ttf|TTF)$", f)}
+        self.ttf_fonts.update({f.split(".")[0]: join(sys_path, f) for f in listdir(sys_path)})
+        w = max([len(f) for f in self.ttf_fonts])
+        fonts = list(self.ttf_fonts)
+        fonts.sort()
+        self.font = Combobox(frame, values=fonts, width=(w*2)//3,
+                                    exportselection=False,
+                                    state="readonly")
+        self.font.current(fonts.index(CONFIG.get("General", "font")))
+        self.img_prev = PhotoImage(master=self, file=IMAGE)
+        Label(frame, text=_("Font")).grid(row=1, column=0,
+                                          padx=8, pady=4, sticky="e")
+        self.font.grid(row=1, column=1, padx=8, pady=4, sticky="w")
+        self.prev = Label(frame, image=self.img_prev)
+        self.prev.grid(row=1, column=2, padx=8, pady=4)
+        self.update_preview()
+        self.font.bind('<<ComboboxSelected>>', self.update_preview)
+
+        Button(frame, text="Ok", command=self.ok).grid(row=2, column=0,
                                                        padx=8, pady=4)
-        Button(frame, text=_("Cancel"),  command=self.destroy).grid(row=1, column=1,
+        Button(frame, text=_("Cancel"),  command=self.destroy).grid(row=2, column=1,
                                                                     padx=4, pady=4)
+
+    def update_preview(self, event=None):
+        nb = "0"
+        im = Image.open(IMAGE)
+        draw = ImageDraw.Draw(im)
+        font_name = self.font.get()
+        font_path = self.ttf_fonts[font_name]
+        try:
+            font = ImageFont.truetype(font_path, 10)
+            draw.text((6//len(nb),4), nb, fill=(255,0,0), font=font)
+        except OSError:
+            draw.text((6//len(nb),4), nb, fill=(255,0,0))
+        im.save(PREV)
+        self.img_prev.configure(file=PREV)
+        self.prev.configure(image=self.img_prev)
+        self.prev.update_idletasks()
 
     def ok(self):
         time = float(self.time_entry.get())*60000

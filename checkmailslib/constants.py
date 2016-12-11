@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Checkmails - System tray unread mail checker
-Copyright 2016 Juliette Monsel <j_4321@hotmail.fr>
+Copyright 2016 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ from locale import getdefaultlocale
 import gettext
 from subprocess import check_output, CalledProcessError
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 # path to application data (images,...)
 PATH = os.path.dirname(__file__)
@@ -55,6 +55,7 @@ else:
     # time in ms between to checks
     CONFIG.set("General", "time", "300000")
     CONFIG.set("General", "timeout", "60000")
+    CONFIG.set("General", "font", "LiberationSans-Bold")
     CONFIG.set("Mailboxes", "active", "")
     CONFIG.set("Mailboxes", "inactive", "")
 
@@ -107,6 +108,7 @@ def encrypt(mailbox, pwd, server, login, password, folder):
 
 # Images
 ICON = os.path.join(LOCAL_PATH, "icon_mail.png")
+PREV = "/tmp/checkmails_preview.png"
 IMAGE = os.path.join(PATH, "images", "mail.png")
 ICON_48 = os.path.join(PATH, "images", "mail48.png")
 IMAGE2 = os.path.join(PATH, "images", "mail.svg")

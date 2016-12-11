@@ -2,7 +2,7 @@
 # -*- coding:Utf-8 -*-
 """
 Checkmails - System tray unread mail checker
-Copyright 2016 Juliette Monsel <j_4321@hotmail.fr>
+Copyright 2016 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ from tkinter.ttk import Entry, Label, Button, Style
 from PIL import Image, ImageDraw, ImageFont
 from tktray import Icon
 import os
-from checkmailslib.constants import IMAGE, ICON, IMAGE2, LANG,save_config
+from checkmailslib.constants import IMAGE, ICON, IMAGE2, LANG, save_config
 from checkmailslib.constants import encrypt, decrypt, LOCAL_PATH, CONFIG, internet_on
 from checkmailslib.manager import Manager
 from checkmailslib.config import Config
@@ -177,8 +177,12 @@ class CheckMails(Tk):
         nb = "%i" % nbmail
         im = Image.open(IMAGE)
         draw = ImageDraw.Draw(im)
-        font = ImageFont.truetype("/usr/share/fonts/TTF/LiberationSans-Bold.ttf", 10)
-        draw.text((6//len(nb),4), nb, fill=(255,0,0), font=font)
+        font_path = CONFIG.get("General", "font")
+        try:
+            font = ImageFont.truetype(font_path, 10)
+            draw.text((6//len(nb),4), nb, fill=(255,0,0), font=font)
+        except OSError:
+            draw.text((6//len(nb),4), nb, fill=(255,0,0))
         im.save(ICON)
         self.img.configure(file=ICON)
 

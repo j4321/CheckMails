@@ -9,7 +9,7 @@ data_files = [("share/applications", ["checkmails.desktop"]),
               ("share/pixmaps", ["checkmails.svg"])]
 
 setup(name = "checkmails",
-      version = "1.0.1",
+      version = "1.1.0",
       description = "System tray unread mail checker",
       author = "Juliette Monsel",
       author_email = "j_4321@sfr.fr",
