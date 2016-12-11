@@ -1,4 +1,4 @@
-Checkmails - System tray unread mail checker
+CheckMails - System tray unread mail checker
 =============================================
 Copyright 2016 Juliette Monsel <j_4321@protonmail.com>
 
@@ -15,6 +15,8 @@ Tk GUI toolkit.
 Install
 -------
 
+For Archlinux users, CheckMails is available on `AUR <https://aur.archlinux.org/packages/checkmails>`__.
+
 First, install the missing dependencies among:
     - Tkinter (Python wrapper for Tk)
     - Tktray https://code.google.com/archive/p/tktray/downloads
@@ -28,9 +30,15 @@ python3-tk, tk-tktray, libnotify and the notification server of your choice,
 python3-crypto, python3-pil
 
 In Archlinux, you will need to install the following packages:
-tk, tktray (AUR), libnotify and the notification server of your choice,
+tk, tktray (`AUR <https://aur.archlinux.org/packages/tktray>`__), libnotify and the notification server of your choice,
 python-crypto, python-pillow
 
+The sources can be checked using the checksums provided by the `sha512sums.txt` file and verified with PGP. 
+To do the latter, you need to import the key first:
+::
+    $ gpg --keyserver hkps://hkps.pool.sks-keyservers.net --recv-keys 29D53CB6B3FE203A89F3E65A644700E38E8B4341
+    $ gpg --verify checkmails-1.1.0.tar.gz.sig
+    
 Then install the application:
 :: 
     $ sudo python3 setup.py install

@@ -48,6 +48,8 @@ CONFIG = ConfigParser()
 if os.path.exists(PATH_CONFIG):
     CONFIG.read(PATH_CONFIG)
     LANGUE = CONFIG.get("General","language")
+    if not CONFIG.has_option("General", "font"):
+        CONFIG.set("General", "font", "LiberationSans-Bold")
 else:
     LANGUE = ""
     CONFIG.add_section("General")
