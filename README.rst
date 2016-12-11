@@ -1,6 +1,6 @@
 Checkmails - System tray unread mail checker
 =============================================
-Copyright 2016 Juliette Monsel <j_4321@hotmail.fr>
+Copyright 2016 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails periodically looks for unread mails and displays the total number 
 of unread mails in the system tray icon. Several mailboxes can be configured. 
@@ -25,7 +25,7 @@ First, install the missing dependencies among:
 
 For instance, in Ubuntu/Debian you will need to install the following packages:
 python3-tk, tk-tktray, libnotify and the notification server of your choice, 
-python3-crypto, python3pil
+python3-crypto, python3-pil
 
 In Archlinux, you will need to install the following packages:
 tk, tktray (AUR), libnotify and the notification server of your choice,
@@ -41,5 +41,5 @@ the messages printed every time a process is lauched or finished and when
 an error is encountered. Therefore you can check that everything works fine.
 
 If you encounter bugs or if you have suggestions, please write me an email
-at <j_4321@hotmail.fr>.
+at <j_4321@protonmail.com>.
 

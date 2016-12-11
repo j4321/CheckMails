@@ -24,7 +24,7 @@ from imaplib import IMAP4_SSL, IMAP4
 from socket import gaierror
 from threading import Thread
 import crypt
-from subprocess import Popen
+from subprocess import run
 from tkinter import Tk, PhotoImage, Toplevel, TclError
 from tkinter.messagebox import showerror, askokcancel
 from tkinter.ttk import Entry, Label, Button, Style
@@ -119,6 +119,7 @@ class CheckMails(Tk):
 
     def reconnect(self):
         self.icon.after_cancel(self.check_id)
+        self.nb_unread = {box: 0 for box in self.info_conn}
         for box in self.boxes:
             self.logout(box, True, True)
         self.check_id = self.icon.after(20000, self.launch_check, False)
@@ -130,7 +131,7 @@ class CheckMails(Tk):
                 notif = _("Checking...")
         else:
             notif = _("Check suspended")
-        Popen(["notify-send", "-i", IMAGE2, _("Unread mails"), notif])
+        run(["notify-send", "-i", IMAGE2, _("Unread mails"), notif])
 
     def reset_conn(self):
         """ Logout from all mailboxes, reset all variables and reload all the data. """
@@ -164,7 +165,7 @@ class CheckMails(Tk):
                 self.info_conn[box] = (server, (login, password), folder)
 
         if not self.info_conn:
-            Popen(["notify-send", "-i", IMAGE2, _("No active mailbox"), _("Use the mailbox manager to confugure a mailbox.")])
+            run(["notify-send", "-i", IMAGE2, _("No active mailbox"), _("Use the mailbox manager to confugure a mailbox.")])
         elif self.icon.menu.entrycget(2, "label") == _("Suspend"):
             for box in self.info_conn:
                 self.connect(box)
@@ -218,7 +219,7 @@ class CheckMails(Tk):
             self.after_cancel(timeout_id)
             if e.args[0] in [b'Invalid login or password', b'Authenticate error', b'LOGIN failed']:
                 # Identification error
-                Popen(["notify-send", "-i", "dialog-error", _("Error"),
+                run(["notify-send", "-i", "dialog-error", _("Error"),
                        _("Incorrect login or password for %(mailbox)s") % {"mailbox": box}])
                 # remove box from the active mailboxes
                 del(self.boxes[box])
@@ -240,7 +241,7 @@ class CheckMails(Tk):
             if e.args == (-2, 'Name or service not known'):
                 # Either there is no internet connection or the IMAP server is wrong
                 if internet_on():
-                    Popen(["notify-send", "-i", "dialog-error",_("Error"),
+                    run(["notify-send", "-i", "dialog-error",_("Error"),
                            _("Wrong IMAP server for %(mailbox)s.") % {"mailbox": box}])
                     # remove box from the active mailboxes
                     active = CONFIG.get("Mailboxes", "active").split(", ")
@@ -254,7 +255,7 @@ class CheckMails(Tk):
                     CONFIG.set("Mailboxes", "active", ", ".join(active))
                     CONFIG.set("Mailboxes", "inactive", ", ".join(inactive))
                 else:
-                    Popen(["notify-send", "-i", "dialog-error",_("Error"),
+                    run(["notify-send", "-i", "dialog-error",_("Error"),
                            _("No internet connection.")])
                     # cancel everything
                     self.icon.after_cancel(self.check_id)
@@ -299,9 +300,9 @@ class CheckMails(Tk):
         """ Launch the connection to the mailbox box in a thread """
         if not (box in self.threads_connect and self.threads_connect[box].isAlive()):
             self.threads_connect[box] = Thread(target=self.connect_mailbox,
-                                                 name='connect_' + box,
-                                                 daemon=True,
-                                                 args=(box,))
+                                               name='connect_' + box,
+                                               daemon=True,
+                                               args=(box,))
             self.threads_connect[box].start()
 
     def logout(self, box, force=False, reconnect=False):
@@ -348,10 +349,11 @@ class CheckMails(Tk):
             if self.notif != _("Checking...") + "/n":
                 notif = self.notif
                 notif += "%s : %s, " % (box, _("Timed out, reconnecting"))
-                Popen(["notify-send", "-i", IMAGE2, _("Unread mails"), notif])
+                run(["notify-send", "-i", IMAGE2, _("Unread mails"), notif])
                 nbtot = 0
-                for nb in self.nb_unread.values():
-                    nbtot += nb
+                for b, nb in self.nb_unread.items():
+                    if b != box:
+                        nbtot += nb
                 self.change_icon(nbtot)
             self.logout(box, force=True, reconnect=True)
 
@@ -384,9 +386,9 @@ class CheckMails(Tk):
         else:
             if self.notif != _("Checking...") + "\n":
                 self.notif = self.notif[:-2].split("\n")[1]
-                Popen(["notify-send", "-i", IMAGE2, _("Unread mails"), self.notif])
+                run(["notify-send", "-i", IMAGE2, _("Unread mails"), self.notif])
             elif force_notify:
-                Popen(["notify-send", "-i", IMAGE2, _("Unread mails"), _("No unread mail")])
+                run(["notify-send", "-i", IMAGE2, _("Unread mails"), _("No unread mail")])
                 self.notif = _("No unread mail")
             else:
                 self.notif = _("No unread mail")
