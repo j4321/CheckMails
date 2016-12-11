@@ -9,10 +9,10 @@ data_files = [("share/applications", ["checkmails.desktop"]),
               ("share/pixmaps", ["checkmails.svg"])]
 
 setup(name = "checkmails",
-      version = "1.1.1",
+      version = "1.1.0",
       description = "System tray unread mail checker",
       author = "Juliette Monsel",
-      author_email = "j_4321@sfr.fr",
+      author_email = "j_4321@protonmail.fr",
       license = "GNU General Public License v3",
       #Name the folder where your packages live:
       #(If you have other packages (dirs) or modules (py files) then
@@ -36,7 +36,8 @@ that appears when clicking on the icon and after a check. This application
 supports only IMAP protocol with SSL encryption. The connection information 
 for each mailbox is stored in an encrypted file using a master password.
 """,
-      requires = ["tkinter", "sys", "os", "locale", "gettext", "crypt", "Crypto", 'hashlib', 'configparser', 'imaplib', 'socket', 'threading', 'subprocess']
+      requires = ["tkinter", "sys", "os", "re",  "locale", "gettext", "crypt", "Crypto", 'hashlib', 'configparser', 'imaplib', 'socket', 'threading', 
+'subprocess']
 )
 
 
