@@ -94,7 +94,12 @@ class Config(Toplevel):
         self.font = Combobox(frame, values=fonts, width=(w*2)//3,
                                     exportselection=False,
                                     state="readonly")
-        self.font.current(fonts.index(CONFIG.get("General", "font")))
+        current_font = CONFIG.get("General", "font")
+        if current_font in fonts:
+            i = fonts.index(current_font)
+        else:
+            i = 0
+        self.font.current(i)
         self.img_prev = PhotoImage(master=self, file=IMAGE)
         Label(frame, text=_("Font")).grid(row=1, column=0,
                                           padx=8, pady=4, sticky="e")

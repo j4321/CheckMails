@@ -1,0 +1,31 @@
+Metadata-Version: 1.1
+Name: checkmails
+Version: 1.1.1
+Summary: System tray unread mail checker
+Home-page: UNKNOWN
+Author: Juliette Monsel
+Author-email: j_4321@protonmail.fr
+License: GNU General Public License v3
+Description: 
+        CheckMails periodically looks for unread mails and displays the total number
+        of unread mails in the system tray icon. Several mailboxes can be configured.
+        The number of unread mails for each mailbox is detailed in a notification
+        that appears when clicking on the icon and after a check. This application
+        supports only IMAP protocol with SSL encryption. The connection information
+        for each mailbox is stored in an encrypted file using a master password.
+        
+Platform: UNKNOWN
+Requires: tkinter
+Requires: sys
+Requires: os
+Requires: re
+Requires: locale
+Requires: gettext
+Requires: crypt
+Requires: Crypto
+Requires: hashlib
+Requires: configparser
+Requires: imaplib
+Requires: socket
+Requires: threading
+Requires: subprocess

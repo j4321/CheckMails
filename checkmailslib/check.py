@@ -221,7 +221,10 @@ class CheckMails(Tk):
 
         except (IMAP4.error, ConnectionResetError, TimeoutError) as e:
             self.after_cancel(timeout_id)
-            if e.args[0] in [b'Invalid login or password', b'Authenticate error', b'LOGIN failed']:
+            if e.args[0] in [b'Invalid login or password',
+                             b'Authenticate error',
+                             b'Login failed: authentication failure',
+                             b'LOGIN failed']:
                 # Identification error
                 run(["notify-send", "-i", "dialog-error", _("Error"),
                        _("Incorrect login or password for %(mailbox)s") % {"mailbox": box}])

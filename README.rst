@@ -32,12 +32,6 @@ python3-crypto, python3-pil
 In Archlinux, you will need to install the following packages:
 tk, tktray (`AUR <https://aur.archlinux.org/packages/tktray>`__), libnotify and the notification server of your choice,
 python-crypto, python-pillow
-
-The sources can be checked using the checksums provided by the `sha512sums.txt` file and verified with PGP. 
-To do the latter, you need to import the key first:
-::
-    $ gpg --keyserver hkps://hkps.pool.sks-keyservers.net --recv-keys 29D53CB6B3FE203A89F3E65A644700E38E8B4341
-    $ gpg --verify checkmails-x.y.z.tar.gz.sig
     
 Then install the application:
 :: 
