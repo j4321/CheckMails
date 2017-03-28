@@ -18,12 +18,12 @@ Install
 For Archlinux users, CheckMails is available on `AUR <https://aur.archlinux.org/packages/checkmails>`__.
 
 First, install the missing dependencies among:
-    - Tkinter (Python wrapper for Tk)
-    - Tktray https://code.google.com/archive/p/tktray/downloads
-    - libnotify and a notification server if your desktop environment does not
-      provide one. (see https://wiki.archlinux.org/index.php/Desktop_notifications for more details)
-    - PyCrypto https://pypi.python.org/pypi/pycrypto
-    - Pillow https://pypi.python.org/pypi/Pillow
+ - Tkinter (Python wrapper for Tk)
+ - Tktray https://code.google.com/archive/p/tktray/downloads
+ - libnotify and a notification server if your desktop environment does not provide one.
+   (see https://wiki.archlinux.org/index.php/Desktop_notifications for more details)
+ - PyCrypto https://pypi.python.org/pypi/pycrypto
+ - Pillow https://pypi.python.org/pypi/Pillow
 
 For instance, in Ubuntu/Debian you will need to install the following packages:
 python3-tk, tk-tktray, libnotify and the notification server of your choice, 
