@@ -1,11 +1,11 @@
 Metadata-Version: 1.1
 Name: checkmails
-Version: 1.1.1
+Version: 1.1.3
 Summary: System tray unread mail checker
-Home-page: UNKNOWN
+Home-page: https://sourceforge.net/projects/checkmails
 Author: Juliette Monsel
-Author-email: j_4321@protonmail.fr
-License: GNU General Public License v3
+Author-email: j_4321@protonmail.com
+License: GPLv3
 Description: 
         CheckMails periodically looks for unread mails and displays the total number
         of unread mails in the system tray icon. Several mailboxes can be configured.
@@ -15,6 +15,18 @@ Description:
         for each mailbox is stored in an encrypted file using a master password.
         
 Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: X11 Applications
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Topic :: Text Editors
+Classifier: Topic :: Office/Business
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Natural Language :: English
+Classifier: Natural Language :: French
+Classifier: Operating System :: POSIX :: Linux
 Requires: tkinter
 Requires: sys
 Requires: os
@@ -25,6 +37,7 @@ Requires: crypt
 Requires: Crypto
 Requires: hashlib
 Requires: configparser
+Requires: html
 Requires: imaplib
 Requires: socket
 Requires: threading

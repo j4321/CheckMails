@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Checkmails - System tray unread mail checker
-Copyright 2016 Juliette Monsel <j_4321@hotmail.fr>
+CheckMails - System tray unread mail checker
+Copyright 2016-2017 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,12 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Mailbox Manager
 """
 
-from checkmailslib.constants import LANG, encrypt, decrypt, LOCAL_PATH, CONFIG
+
+from checkmailslib.constants import encrypt, decrypt, LOCAL_PATH, CONFIG
 from checkmailslib.constants import save_config, ADD, DEL, EDIT
 from tkinter import Toplevel, PhotoImage
 from tkinter.ttk import Button, Entry, Label, Checkbutton, Frame
 import os
-_ = LANG.gettext
+
 
 class Manager(Toplevel):
     """ Mailbox Manager """

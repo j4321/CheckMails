@@ -1,8 +1,8 @@
 #! /usr/bin/python3
 # -*- coding:Utf-8 -*-
 """
-Checkmails - System tray unread mail checker
-Copyright 2016 Juliette Monsel <j_4321@protonmail.com>
+CheckMails - System tray unread mail checker
+Copyright 2016-2017 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Main class
 """
 
+
+import os
 from imaplib import IMAP4_SSL, IMAP4
 from socket import gaierror
 from threading import Thread
@@ -29,14 +31,14 @@ from tkinter import Tk, PhotoImage, Toplevel, TclError
 from tkinter.messagebox import showerror, askokcancel
 from tkinter.ttk import Entry, Label, Button, Style
 from PIL import Image, ImageDraw, ImageFont
-from tktray import Icon
-import os
-from checkmailslib.constants import IMAGE, ICON, IMAGE2, LANG, save_config
+from checkmailslib.tktray import Icon
+from checkmailslib.constants import IMAGE, ICON, IMAGE2, save_config
 from checkmailslib.constants import encrypt, decrypt, LOCAL_PATH, CONFIG, internet_on
 from checkmailslib.manager import Manager
 from checkmailslib.config import Config
 from checkmailslib.about import About
-_ = LANG.gettext
+from checkmailslib.version_check import UpdateChecker
+
 
 class CheckMails(Tk):
     """ System tray app that periodically looks for new mails. """
@@ -50,15 +52,23 @@ class CheckMails(Tk):
         self.img = PhotoImage(file=IMAGE)
         self.icon = Icon(self, image=self.img)
         self.icon.menu.add_command(label=_("Check"), command=self.check_mails)
-        self.icon.menu.add_command(label=_("Reconnect"), command=self.reconnect)
+        self.icon.menu.add_command(label=_("Reconnect"),
+                                   command=self.reconnect)
         self.icon.menu.add_command(label=_("Suspend"), command=self.start_stop)
         self.icon.menu.add_separator()
-        self.icon.menu.add_command(label=_("Change password"), command=self.change_password)
-        self.icon.menu.add_command(label=_("Reset password"), command=self.reset_password)
+        self.icon.menu.add_command(label=_("Change password"),
+                                   command=self.change_password)
+        self.icon.menu.add_command(label=_("Reset password"),
+                                   command=self.reset_password)
         self.icon.menu.add_separator()
-        self.icon.menu.add_command(label=_("Manage mailboxes"), command=self.manage_mailboxes)
+        self.icon.menu.add_command(label=_("Manage mailboxes"),
+                                   command=self.manage_mailboxes)
         self.icon.menu.add_command(label=_("Preferences"), command=self.config)
-        self.icon.menu.add_command(label=_("About"), command=self.about)
+        self.icon.menu.add_separator()
+        self.icon.menu.add_command(label=_("Check for updates"),
+                                   command=lambda: UpdateChecker(self))
+        self.icon.menu.add_command(label=_("About"),
+                                   command=lambda: About(self))
         self.icon.menu.add_separator()
         self.icon.menu.add_command(label=_("Quit"), command=self.quit)
         self.icon.bind('<Button-1>', self.display)
@@ -94,7 +104,8 @@ class CheckMails(Tk):
         # retrieve mailbox login information from encrypted files
         self.get_info_conn()
 
-        self.mainloop()
+        if CONFIG.getboolean("General", "check_update"):
+            UpdateChecker(self)
 
     def start_stop(self):
         """ Suspend checks """
@@ -112,10 +123,6 @@ class CheckMails(Tk):
             self.icon.menu.entryconfigure(0, state="normal")
             self.icon.menu.entryconfigure(1, state="normal")
             self.reconnect()
-
-    def about(self):
-        """ Show about dialog """
-        About(self)
 
     def reconnect(self):
         self.icon.after_cancel(self.check_id)
@@ -165,8 +172,10 @@ class CheckMails(Tk):
                 self.info_conn[box] = (server, (login, password), folder)
 
         if not self.info_conn:
-            run(["notify-send", "-i", IMAGE2, _("No active mailbox"), _("Use the mailbox manager to confugure a mailbox.")])
+            self.notif = _("No active mailbox")
+            run(["notify-send", "-i", IMAGE2, _("No active mailbox"), _("Use the mailbox manager to configure a mailbox.")])
         elif self.icon.menu.entrycget(2, "label") == _("Suspend"):
+            self.notif = ""
             for box in self.info_conn:
                 self.connect(box)
             self.icon.after_cancel(self.check_id)

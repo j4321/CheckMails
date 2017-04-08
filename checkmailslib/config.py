@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Checkmails - System tray unread mail checker
-Copyright 2016 Juliette Monsel <j_4321@hotmail.fr>
+CheckMails - System tray unread mail checker
+Copyright 2016-2017 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,12 +22,11 @@ Configuration dialog
 from re import search
 from os.path import expanduser, join
 from os import listdir
-from checkmailslib.constants import CONFIG, LANG, save_config, IMAGE, PREV
+from checkmailslib.constants import CONFIG, save_config, IMAGE, PREV
 from PIL import Image, ImageDraw, ImageFont
 from tkinter import Toplevel, Menu, StringVar, PhotoImage
 from tkinter.messagebox import showinfo
 from tkinter.ttk import Label, Button, Entry, Menubutton, Frame, Style, Combobox
-_ = LANG.gettext
 
 class Config(Toplevel):
     """ Configuration dialog to set times and language. """
@@ -45,7 +44,7 @@ class Config(Toplevel):
         # validation of the entries : only numbers are allowed
         self._validate_entry_nb = self.register(self.validate_entry_nb)
 
-        # Times
+        ### Times
         Label(self,
               text=_("Time between two checks")).grid(row=0, column=0,
                                                       padx=(10,4), pady=(10,4),
@@ -68,7 +67,8 @@ class Config(Toplevel):
 
         frame = Frame(self)
         frame.grid(row=2,columnspan=3, padx=6, pady=(0,6))
-        # Language
+
+        ### Language
         Label(frame, text=_("Language")).grid(row=0, column=0,
                                               padx=8, pady=4, sticky="e")
         lang = {"fr":"Français", "en":"English"}
@@ -81,22 +81,22 @@ class Config(Toplevel):
                                   variable=self.lang, command=self.translate)
         menu_lang.add_radiobutton(label="Français", value="Français",
                                   variable=self.lang, command=self.translate)
-        # Font
+        ### Font
         local_path = join(expanduser("~"), ".fonts")
         sys_path = "/usr/share/fonts/TTF"
         local_fonts = listdir(local_path)
         self.ttf_fonts = {f.split(".")[0]: join(local_path, f)
-                     for f in local_fonts if search(r".(ttf|TTF)$", f)}
+                          for f in local_fonts if search(r".(ttf|TTF)$", f)}
         self.ttf_fonts.update({f.split(".")[0]: join(sys_path, f) for f in listdir(sys_path)})
         w = max([len(f) for f in self.ttf_fonts])
-        fonts = list(self.ttf_fonts)
-        fonts.sort()
-        self.font = Combobox(frame, values=fonts, width=(w*2)//3,
+        self.fonts = list(self.ttf_fonts)
+        self.fonts.sort()
+        self.font = Combobox(frame, values=self.fonts, width=(w*2)//3,
                                     exportselection=False,
                                     state="readonly")
         current_font = CONFIG.get("General", "font")
-        if current_font in fonts:
-            i = fonts.index(current_font)
+        if current_font in self.fonts:
+            i = self.fonts.index(current_font)
         else:
             i = 0
         self.font.current(i)
@@ -109,10 +109,13 @@ class Config(Toplevel):
         self.update_preview()
         self.font.bind('<<ComboboxSelected>>', self.update_preview)
 
-        Button(frame, text="Ok", command=self.ok).grid(row=2, column=0,
-                                                       padx=8, pady=4)
-        Button(frame, text=_("Cancel"),  command=self.destroy).grid(row=2, column=1,
-                                                                    padx=4, pady=4)
+        ### Ok/Cancel
+        frame_button = Frame(self)
+        frame_button.grid(row=3, columnspan=3, padx=6, pady=(0,6))
+        Button(frame_button, text="Ok",
+               command=self.ok).grid(row=2, column=0, padx=8, pady=4)
+        Button(frame_button, text=_("Cancel"),
+               command=self.destroy).grid(row=2, column=1, padx=4, pady=4)
 
     def update_preview(self, event=None):
         nb = "0"

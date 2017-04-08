@@ -1,6 +1,6 @@
 CheckMails - System tray unread mail checker
 =============================================
-Copyright 2016 Juliette Monsel <j_4321@protonmail.com>
+Copyright 2016-2017 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails periodically looks for unread mails and displays the total number 
 of unread mails in the system tray icon. Several mailboxes can be configured. 
@@ -41,6 +41,11 @@ You can now launch it from `Menu > Utility > CheckMails`. You can launch
 it from the command line with `checkmails`. In this last case, you will see
 the messages printed every time a process is lauched or finished and when 
 an error is encountered. Therefore you can check that everything works fine.
+
+
+If there is a black border around the system tray icon, you can try to 
+restart the panel (e.g. xfce4-panel), it should disappear (at least in xfce).
+
 
 If you encounter bugs or if you have suggestions, please write me an email
 at <j_4321@protonmail.com>.

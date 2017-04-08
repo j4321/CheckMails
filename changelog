@@ -1,0 +1,31 @@
+CheckMails - System tray unread mail checker
+=============================================
+Copyright 2016 Juliette Monsel <j_4321@protonmail.com>
+
+Changelog
+---------
+
+- Version 1.1.3
+    * Improved Preferences dialog layout
+    * Added update checker
+    * Set notification to "No active mailbox" instead of "Checking..." 
+      when there is no active mailbox.
+    * Changed package organization (config, images, locale paths) so 
+      that the installation is neater and also it can be used as a 
+      portable software (if run locally, the config files are created 
+      inside the app folder, not in the home directory)
+    * created .deb package
+
+- Version 1.1.2
+    * Corrected bug: ImportError: No module named 'tktray'
+
+- Version 1.1.1
+    * Corrected bug when the default font (Liberation Sans Bold) is not installed
+    * Corrected bug when one changes the password from one of the mailbox
+
+- Version 1.1.0
+    * Added 'Suspend' functionnality
+    * Added font configuration for the system tray icon
+
+- Version 1.0.0
+    * Initial release
