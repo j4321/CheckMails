@@ -5,6 +5,9 @@ Copyright 2016 Juliette Monsel <j_4321@protonmail.com>
 Changelog
 ---------
 
+- Version 1.1.4
+    * Corrected bug: update checker not working due to typo in html parser
+
 - Version 1.1.3
     * Improved Preferences dialog layout
     * Added update checker
@@ -14,7 +17,7 @@ Changelog
       that the installation is neater and also it can be used as a 
       portable software (if run locally, the config files are created 
       inside the app folder, not in the home directory)
-    * created .deb package
+    * Created .deb package
 
 - Version 1.1.2
     * Corrected bug: ImportError: No module named 'tktray'

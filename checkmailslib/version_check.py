@@ -44,7 +44,7 @@ class VersionParser(HTMLParser):
         pass
 
     def handle_data(self, data):
-        res = re.match(r"^mynotes-[0-9]+\.[0-9]+\.[0-9]+", data)
+        res = re.match(r"^checkmails-[0-9]+\.[0-9]+\.[0-9]+", data)
         if res:
             self.version = res.group().split("-")[-1]
 
