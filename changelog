@@ -5,6 +5,10 @@ Copyright 2016 Juliette Monsel <j_4321@protonmail.com>
 Changelog
 ---------
 
+- Version 1.1.5
+    * Add log file ~/.checkmails/checkmails.log
+    * Use pkg_resources to get version (to avoid forgetting to update it in the code)
+
 - Version 1.1.4
     * Corrected bug: update checker not working due to typo in html parser
 
