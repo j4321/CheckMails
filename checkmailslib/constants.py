@@ -49,7 +49,7 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 
 
-VERSION = pkg_resources.require("mynotes")[0].version
+VERSION = pkg_resources.require("checkmails")[0].version
 
 # --- paths
 PATH = os.path.dirname(__file__)
