@@ -19,13 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 IM_QUESTION_DATA was taken from "icons.tcl":
 
-	A set of stock icons for use in Tk dialogs. The icons used here
-	were provided by the Tango Desktop project which provides a
-	unified set of high quality icons licensed under the
-	Creative Commons Attribution Share-Alike license
-	(http://creativecommons.org/licenses/by-sa/3.0/)
+    A set of stock icons for use in Tk dialogs. The icons used here
+    were provided by the Tango Desktop project which provides a
+    unified set of high quality icons licensed under the
+    Creative Commons Attribution Share-Alike license
+    (http://creativecommons.org/licenses/by-sa/3.0/)
 
-	See http://tango.freedesktop.org/Tango_Desktop_Project
+    See http://tango.freedesktop.org/Tango_Desktop_Project
 
     Copyright (c) 2009 Pat Thoyts <patthoyts@users.sourceforge.net>
 
@@ -36,9 +36,7 @@ Copyright 2007-2013 elementary LLC.
 Constants
 """
 
-
-VERSION = "1.1.3"
-
+import pkg_resources
 import hashlib
 from Crypto.Cipher import AES
 from Crypto import Random
@@ -47,8 +45,12 @@ from configparser import ConfigParser
 from locale import getdefaultlocale
 import gettext
 from subprocess import check_output, CalledProcessError
+import logging
 
-### paths
+
+VERSION = pkg_resources.require("mynotes")[0].version
+
+# --- paths
 PATH = os.path.dirname(__file__)
 
 if os.access(PATH, os.W_OK) and os.path.exists(os.path.join(PATH, "images")):
@@ -66,9 +68,14 @@ else:
 if not os.path.isdir(LOCAL_PATH):
         os.mkdir(LOCAL_PATH)
 PATH_CONFIG = os.path.join(LOCAL_PATH, "checkmails.ini")
+LOG_PATH = os.path.join(LOCAL_PATH, "checkmails.log")
 
+# --- log
+logging.basicConfig(filename=LOG_PATH, level=logging.INFO,
+                    format='%(asctime)-15s %(levelname)s: %(message)s')
+logging.getLogger().addHandler(logging.StreamHandler())
 
-### read config file
+# --- read config file
 CONFIG = ConfigParser()
 if os.path.exists(PATH_CONFIG):
     CONFIG.read(PATH_CONFIG)
@@ -94,7 +101,7 @@ def save_config():
     with open(PATH_CONFIG, 'w') as fichier:
         CONFIG.write(fichier)
 
-### Translation
+# --- Translation
 
 APP_NAME = "checkmails"
 
@@ -116,7 +123,7 @@ LANG = gettext.translation(APP_NAME, PATH_LOCALE,
                            languages=[LANGUE], fallback=True)
 LANG.install()
 
-### Cryptographic functions to safely store login information
+# --- Cryptographic functions to safely store login information
 def decrypt(mailbox, pwd):
     """ Returns the login and password for the mailbox that where encrypted using pwd"""
     key = hashlib.sha256(pwd.encode()).digest()
@@ -137,7 +144,7 @@ def encrypt(mailbox, pwd, server, login, password, folder):
         fich.write(cipher.encrypt("\n".join(info)))
 
 
-### Images
+# --- Images
 ICON = os.path.join(LOCAL_PATH, "icon_mail.png")
 PREV = "/tmp/checkmails_preview.png"
 IMAGE = os.path.join(PATH_IMAGES, "mail.png")

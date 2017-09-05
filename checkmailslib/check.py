@@ -22,6 +22,8 @@ Main class
 
 
 import os
+import traceback
+import logging
 from imaplib import IMAP4_SSL, IMAP4
 from socket import gaierror
 from threading import Thread
@@ -41,10 +43,11 @@ from checkmailslib.version_check import UpdateChecker
 
 
 class CheckMails(Tk):
-    """ System tray app that periodically looks for new mails. """
+    """System tray app that periodically looks for new mails."""
     def __init__(self):
         Tk.__init__(self)
         self.withdraw()
+        logging.info('Starting checkmails')
         # icon that will show up in the taskbar for every toplevel
         self.im_icon = PhotoImage(master=self, file=IMAGE)
         self.iconphoto(True, self.im_icon)
@@ -66,7 +69,7 @@ class CheckMails(Tk):
         self.icon.menu.add_command(label=_("Preferences"), command=self.config)
         self.icon.menu.add_separator()
         self.icon.menu.add_command(label=_("Check for updates"),
-                                   command=lambda: UpdateChecker(self))
+                                   command=lambda: UpdateChecker(self, True))
         self.icon.menu.add_command(label=_("About"),
                                    command=lambda: About(self))
         self.icon.menu.add_separator()
@@ -75,6 +78,11 @@ class CheckMails(Tk):
 
         self.style = Style(self)
         self.style.theme_use('clam')
+        self.style.map('TCheckbutton',
+                       indicatorbackground=[('pressed', '#dcdad5'),
+                                            ('!disabled', 'alternate', 'white'),
+                                            ('disabled', 'alternate', '#a0a0a0'),
+                                            ('disabled', '#dcdad5')])
 
         # master password
         self.pwd = None
@@ -107,8 +115,13 @@ class CheckMails(Tk):
         if CONFIG.getboolean("General", "check_update"):
             UpdateChecker(self)
 
+    def report_callback_exception(self, *args):
+        """Log exceptions."""
+        err = "".join(traceback.format_exception(*args))
+        logging.error(err)
+
     def start_stop(self):
-        """ Suspend checks """
+        """Suspend checks."""
         if self.icon.menu.entrycget(2, "label") == _("Suspend"):
             self.icon.after_cancel(self.check_id)
             self.icon.after_cancel(self.timer_id)
@@ -141,7 +154,7 @@ class CheckMails(Tk):
         run(["notify-send", "-i", IMAGE2, _("Unread mails"), notif])
 
     def reset_conn(self):
-        """ Logout from all mailboxes, reset all variables and reload all the data. """
+        """Logout from all mailboxes, reset all variables and reload all the data."""
         for box in self.boxes:
             self.logout(box)
         self.boxes = {}
@@ -155,8 +168,10 @@ class CheckMails(Tk):
         self.get_info_conn()
 
     def get_info_conn(self):
-        """ Retrieve connection information from the encrypted files and
-            launch checks (if they are noit suspended). """
+        """
+        Retrieve connection information from the encrypted files and
+        launch checks (if they are noit suspended).
+        """
         mailboxes = CONFIG.get("Mailboxes", "active").split(", ")
         while "" in mailboxes:
             mailboxes.remove("")
@@ -182,7 +197,7 @@ class CheckMails(Tk):
             self.check_id = self.after(20000, self.launch_check, False)
 
     def change_icon(self, nbmail):
-        """ Display the number of unread mails nbmail in the system tray icon. """
+        """Display the number of unread mails nbmail in the system tray icon."""
         nb = "%i" % nbmail
         im = Image.open(IMAGE)
         draw = ImageDraw.Draw(im)
@@ -196,7 +211,7 @@ class CheckMails(Tk):
         self.img.configure(file=ICON)
 
     def config(self):
-        """ Open config dialog to set times and language. """
+        """Open config dialog to set times and language."""
         Config(self)
         self.time = CONFIG.getint("General", "time")
         self.timeout = CONFIG.getint("General", "timeout")
@@ -204,7 +219,7 @@ class CheckMails(Tk):
             self.check_mails(False)
 
     def manage_mailboxes(self):
-        """ Open the mailbox manager. """
+        """Open the mailbox manager."""
         if self.pwd is None:
             if not os.path.exists(os.path.join(LOCAL_PATH, ".pwd")):
                 self.set_password()
@@ -216,9 +231,9 @@ class CheckMails(Tk):
             self.reset_conn()
 
     def connect_mailbox(self, box):
-        """ Connect to the mailbox box and select the folder. """
+        """Connect to the mailbox box and select the folder."""
         try:
-            print("Connecting to", box)
+            logging.info("Connecting to %s" % box)
             serveur, loginfo, folder = self.info_conn[box]
             # reinitialize the connection if it takes too long
             timeout_id = self.after(self.timeout, self.logout, box, False, True)
@@ -226,7 +241,7 @@ class CheckMails(Tk):
             self.boxes[box].login(*loginfo)
             self.boxes[box].select(folder)
             self.after_cancel(timeout_id)
-            print("Connected to", box)
+            logging.info("Connected to %s" % box)
 
         except (IMAP4.error, ConnectionResetError, TimeoutError) as e:
             self.after_cancel(timeout_id)
@@ -249,9 +264,12 @@ class CheckMails(Tk):
                 inactive.append(box)
                 CONFIG.set("Mailboxes", "active", ", ".join(active))
                 CONFIG.set("Mailboxes", "inactive", ", ".join(inactive))
+                logging.exception("Incorrect login or password for %(mailbox)s" % {"mailbox": box})
             else:
                 # try to reconnect
-                print(e)
+                logging.exception(str(e))
+                run(["notify-send", "-i", "dialog-error", _("Error"),
+                     traceback.format_exc()])
                 self.logout(box, reconnect=True)
         except gaierror as e:
             if e.args == (-2, 'Name or service not known'):
@@ -270,9 +288,10 @@ class CheckMails(Tk):
                     inactive.append(box)
                     CONFIG.set("Mailboxes", "active", ", ".join(active))
                     CONFIG.set("Mailboxes", "inactive", ", ".join(inactive))
+                    logging.error("Wrong IMAP server for %(mailbox)s." % {"mailbox": box})
                 else:
-                    run(["notify-send", "-i", "dialog-error",_("Error"),
-                           _("No internet connection.")])
+                    run(["notify-send", "-i", "dialog-error", _("Error"),
+                         _("No internet connection.")])
                     # cancel everything
                     self.icon.after_cancel(self.check_id)
                     self.icon.after_cancel(self.timer_id)
@@ -282,7 +301,9 @@ class CheckMails(Tk):
                     self.internet_id = self.after(self.timeout, self.test_connection)
             else:
                 # try to reconnect
-                print(e)
+                logging.exception(str(e))
+                run(["notify-send", "-i", "dialog-error", _("Error"),
+                     traceback.format_exc()])
                 self.logout(box, reconnect=True)
 
         except ValueError:
@@ -290,22 +311,26 @@ class CheckMails(Tk):
             pass
 
     def test_connection(self):
-        """ Launch mail check if there is an internet connection otherwise
-            check again for an internet connection after self.timeout. """
+        """
+        Launch mail check if there is an internet connection otherwise
+        check again for an internet connection after self.timeout.
+        """
         if internet_on():
             self.reset_conn()
         else:
             self.internet_id = self.icon.after(self.timeout, self.test_connection)
 
     def logout_mailbox(self, box, reconnect):
-        """ Logout from box. If reconnect is True, launch connection once
-            logout is done. """
+        """
+        Logout from box. If reconnect is True, launch connection once
+        logout is done.
+        """
         if box in self.boxes:
             mail = self.boxes[box]
             try:
-                print('Logging out of', box)
+                logging.info('Logging out of %s' % box)
                 mail.logout()
-                print('Logged out of', box)
+                logging.info('Logged out of %s' % box)
             except (IMAP4.abort, OSError):
                 # the connection attempt has aborted due to the logout
                 pass
@@ -313,7 +338,7 @@ class CheckMails(Tk):
                 self.connect(box)
 
     def connect(self, box):
-        """ Launch the connection to the mailbox box in a thread """
+        """Launch the connection to the mailbox box in a thread """
         if not (box in self.threads_connect and self.threads_connect[box].isAlive()):
             self.threads_connect[box] = Thread(target=self.connect_mailbox,
                                                name='connect_' + box,
@@ -322,9 +347,11 @@ class CheckMails(Tk):
             self.threads_connect[box].start()
 
     def logout(self, box, force=False, reconnect=False):
-        """ Launch the logout from box in a thread. If force is True,
-            launch the logout even if a logout process is active. If reconnect
-            is True, launch the connection to box once the logout is done. """
+        """
+        Launch the logout from box in a thread. If force is True,
+        launch the logout even if a logout process is active. If reconnect
+        is True, launch the connection to box once the logout is done.
+        """
         if force or not (box in self.threads_logout and self.threads_logout[box].isAlive()):
             self.threads_logout[box] = Thread(target=self.logout_mailbox,
                                                 name='logout_' + box,
@@ -334,35 +361,37 @@ class CheckMails(Tk):
 
 
     def launch_check(self, force_notify=False):
-        """ Check every 20 s if the login to all the mailboxes is done.
-            Once it is the case, launch the unread mail check. """
+        """
+        Check every 20 s if the login to all the mailboxes is done.
+        Once it is the case, launch the unread mail check.
+        """
         b = [self.threads_connect[box].isAlive() for box in self.threads_connect]
         if len(b) < len(self.info_conn) or True in b:
-            print("waiting for connexion ...")
+            logging.info("Waiting for connexion ...")
             self.icon.after_cancel(self.check_id)
             self.check_id = self.icon.after(20000, self.launch_check, force_notify)
         else:
-            print("launching check")
+            logging.info("Launching check")
             self.check_mails(force_notify)
 
     def check_mailbox(self, box):
-        """ Look for unread mails in box """
+        """Look for unread mails in box."""
         mail = self.boxes[box]
         # reinitialize the connection if it takes too long
         timeout_id = self.after(self.timeout, self.logout, box, True, True)
-        print("collecting unread mails for", box)
+        logging.info("Collecting unread mails for %s" % box)
         try:
             r, messages = mail.search(None, '(UNSEEN)')
             self.after_cancel(timeout_id)
             self.nb_unread[box] = len(messages[0].split())
             if self.nb_unread[box] > 0:
-               self.notif += "%s : %i, " % (box, self.nb_unread[box])
-            print("unread mails collected for", box)
+                self.notif += "%s : %i, " % (box, self.nb_unread[box])
+            logging.info("Unread mails collected for %s" % box)
 
         except (IMAP4.error, ConnectionResetError, TimeoutError) as e:
-            print(e)
             self.after_cancel(timeout_id)
             if self.notif != _("Checking...") + "/n":
+                logging.error('%s: %s' % (box, e))
                 notif = self.notif
                 notif += "%s : %s, " % (box, _("Timed out, reconnecting"))
                 run(["notify-send", "-i", IMAGE2, _("Unread mails"), notif])
@@ -371,31 +400,37 @@ class CheckMails(Tk):
                     if b != box:
                         nbtot += nb
                 self.change_icon(nbtot)
+            else:
+                logging.exception(str(e))
+                run(["notify-send", "-i", "dialog-error", _("Error"),
+                     traceback.format_exc()])
             self.logout(box, force=True, reconnect=True)
 
-
-
     def check_mails(self, force_notify=True):
-        """ Check whether there are new mails. If force_notify is True,
-            display a notification even if there is no unread mail. """
+        """
+        Check whether there are new mails. If force_notify is True,
+        display a notification even if there is no unread mail.
+        """
         self.notif = _("Checking...") + "\n"
         self.icon.after_cancel(self.timer_id)
         self.icon.after_cancel(self.notif_id)
         for box, mail in self.boxes.items():
-            if not self.threads_connect[box].isAlive() and (not box in self.threads_check or not self.threads_check[box].isAlive()):
+            if not self.threads_connect[box].isAlive() and (box not in self.threads_check or not self.threads_check[box].isAlive()):
                 self.threads_check[box] = Thread(target=self.check_mailbox,
-                                                   name='check_' + box,
-                                                   daemon=True,
-                                                   args=(box,))
+                                                 name='check_' + box,
+                                                 daemon=True,
+                                                 args=(box,))
                 self.threads_check[box].start()
         self.notif_id = self.icon.after(20000, self.notify_unread_mails, force_notify)
         self.timer_id = self.icon.after(self.time, self.check_mails, False)
 
     def notify_unread_mails(self, force_notify=True):
-        """ Check every 20 s if the checks are done for all the mailboxes.
-            If it is the case display the number of unread mails for each boxes.
-            If force_notify is True, display a notification even if there is no
-            unread mail. """
+        """
+        Check every 20 s if the checks are done for all the mailboxes.
+        If it is the case display the number of unread mails for each boxes.
+        If force_notify is True, display a notification even if there is no
+        unread mail.
+        """
         b = [self.threads_check[box].isAlive() for box in self.threads_check]
         if len(b) < len(self.info_conn) or True in b:
             self.notif_id = self.icon.after(20000, self.notify_unread_mails, force_notify)
@@ -414,7 +449,7 @@ class CheckMails(Tk):
             self.change_icon(nbtot)
 
     def quit(self):
-        """ Logout from all the mailboxes and quit """
+        """Logout from all the mailboxes and quit."""
         for box in self.info_conn:
             self.logout(box)
         try:
@@ -427,7 +462,7 @@ class CheckMails(Tk):
             pass
 
     def ask_password(self):
-        """ Ask the master password in order to decrypt the mailbox config files """
+        """Ask the master password in order to decrypt the mailbox config files."""
         def ok(event=None):
             with open(os.path.join(LOCAL_PATH, '.pwd')) as fich:
                 cryptedpwd = fich.read()
@@ -435,9 +470,11 @@ class CheckMails(Tk):
             if crypt.crypt(pwd, cryptedpwd) == cryptedpwd:
                 # passwords match
                 top.destroy()
+                logging.info('Authentication successful')
                 self.pwd = pwd
             else:
                 showerror(_('Error'), _('Incorrect password!'))
+                logging.warning('Authentication failed')
                 getpwd.delete(0,"end")
         top = Toplevel(self)
         top.title(_("Password"))
@@ -451,7 +488,7 @@ class CheckMails(Tk):
         self.wait_window(top)
 
     def set_password(self):
-        """ Set the master password used to encrypt the mailbox config files """
+        """Set the master password used to encrypt the mailbox config files."""
         def ok(event=None):
             pwd = getpwd.get()
             pwd2 = confpwd.get()
@@ -462,6 +499,7 @@ class CheckMails(Tk):
                     fich.write(cryptedpwd)
                 top.destroy()
                 self.pwd = pwd
+                logging.info('New password set')
             else:
                 showerror(_('Error'), _('Passwords do not match!'))
 
@@ -481,8 +519,10 @@ class CheckMails(Tk):
         self.wait_window(top)
 
     def change_password(self):
-        """ Change the master password: decrypt all the mailbox config files
-            using the old password and encrypt them with the new. """
+        """
+        Change the master password: decrypt all the mailbox config files
+        using the old password and encrypt them with the new.
+        """
         def ok(event=None):
             with open(os.path.join(LOCAL_PATH, '.pwd')) as fich:
                 cryptedpwd = fich.read()
@@ -504,6 +544,7 @@ class CheckMails(Tk):
                         encrypt(mailbox, pwd, server, login, password, folder)
                     self.pwd = pwd
                     top.destroy()
+                    logging.info('Password changed')
                     return pwd
                 else:
                     showerror(_('Error'), _('Passwords do not match!'))
@@ -528,8 +569,10 @@ class CheckMails(Tk):
         self.wait_window(top)
 
     def reset_password(self):
-        """ Reset the master password and delete all the mailboxes config files
-            since they cannot be decrypted without the password """
+        """
+        Reset the master password and delete all the mailboxes config files
+        since they cannot be decrypted without the password.
+        """
         rep = askokcancel(_("Confirmation"), _("The reset of the password will erase all the stored mailbox connection information"), icon="warning")
         if rep:
             mailboxes = CONFIG.get("Mailboxes", "active").split(", ") + CONFIG.get("Mailboxes", "inactive").split(", ")
@@ -540,6 +583,7 @@ class CheckMails(Tk):
             save_config()
             for mailbox in mailboxes:
                 os.remove(os.path.join(LOCAL_PATH, mailbox))
+            logging.info('Reset')
             self.set_password()
 
 
