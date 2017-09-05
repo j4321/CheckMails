@@ -267,9 +267,9 @@ class CheckMails(Tk):
                 logging.exception("Incorrect login or password for %(mailbox)s" % {"mailbox": box})
             else:
                 # try to reconnect
-                logging.exception(str(e))
-                run(["notify-send", "-i", "dialog-error", _("Error"),
-                     traceback.format_exc()])
+                logging.exception('%s: %s:' (type(e), str(e)))
+                run(["notify-send", "-i", "dialog-error", str(type(e)),
+                     str(e)])
                 self.logout(box, reconnect=True)
         except gaierror as e:
             if e.args == (-2, 'Name or service not known'):

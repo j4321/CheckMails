@@ -1,3 +1,6 @@
 *.pyc
-dist
-config
+dist/
+config/
+__pycache__/
+build/
+checkmails.egg-info
