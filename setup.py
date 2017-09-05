@@ -16,7 +16,7 @@ data_files = [("share/applications", ["checkmails.desktop"]),
               ("share/pixmaps", ["checkmails.svg"])]
 
 setup(name = "checkmails",
-      version = "1.1.4",
+      version = "1.1.5",
       description = "System tray unread mail checker",
       author = "Juliette Monsel",
       author_email = "j_4321@protonmail.com",

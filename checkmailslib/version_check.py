@@ -23,13 +23,15 @@ Check for updates
 
 
 import re
+import logging
+from subprocess import run
 from threading import Thread
 from urllib import request, error
 from html.parser import HTMLParser
 from webbrowser import open as webOpen
 from tkinter import Toplevel, PhotoImage
 from tkinter.ttk import Label, Button, Frame, Checkbutton
-from checkmailslib.constants import VERSION, CONFIG, save_config, IM_QUESTION_DATA
+from checkmailslib.constants import VERSION, CONFIG, save_config, IM_QUESTION_DATA, IMAGE2
 
 
 class VersionParser(HTMLParser):
@@ -53,18 +55,22 @@ class VersionParser(HTMLParser):
         HTMLParser.feed(self, data)
         return self.version
 
+
 class UpdateChecker(Toplevel):
 
     version_parser = VersionParser()
 
-    def __init__(self, master):
+    def __init__(self, master, notify=False):
         Toplevel.__init__(self, master)
+        logging.info('Checking for updates')
         self.title(_("Update"))
         self.withdraw()
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.protocol("WM_DELETE_WINDOW", self.quit)
+
+        self.notify = notify
 
         self.img = PhotoImage(data=IM_QUESTION_DATA, master=self)
 
@@ -101,6 +107,9 @@ class UpdateChecker(Toplevel):
             self.lift()
             self.b1.focus_set()
         else:
+            if self.notify:
+                run(["notify-send", "-i", IMAGE2, _("Update"), _("Checkmails is up-to-date.")])
+            logging.info("Checkmails is up-to-date")
             self.destroy()
 
     def quit(self):
@@ -113,8 +122,10 @@ class UpdateChecker(Toplevel):
         self.quit()
 
     def update_available(self):
-        """ check for updates online, return True if an update is available, False
-            otherwise (and if there is no Internet connection) """
+        """
+        Check for updates online, return True if an update is available, False
+        otherwise (and if there is no Internet connection).
+        """
         try:
             with request.urlopen('https://sourceforge.net/projects/checkmails') as page:
                 latest_version = self.version_parser.feed(page.read().decode())
