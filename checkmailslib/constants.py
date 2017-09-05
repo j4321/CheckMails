@@ -46,6 +46,7 @@ from locale import getdefaultlocale
 import gettext
 from subprocess import check_output, CalledProcessError
 import logging
+from logging.handlers import TimedRotatingFileHandler
 
 
 VERSION = pkg_resources.require("mynotes")[0].version
@@ -71,10 +72,12 @@ PATH_CONFIG = os.path.join(LOCAL_PATH, "checkmails.ini")
 LOG_PATH = os.path.join(LOCAL_PATH, "checkmails.log")
 
 # --- log
-logging.basicConfig(filename=LOG_PATH, level=logging.INFO,
-                    format='%(asctime)-15s %(levelname)s: %(message)s')
+handler = TimedRotatingFileHandler(LOG_PATH, when='midnight',
+                                   interval=1, backupCount=5)
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)-15s %(levelname)s: %(message)s',
+                    handlers=[handler])
 logging.getLogger().addHandler(logging.StreamHandler())
-
 # --- read config file
 CONFIG = ConfigParser()
 if os.path.exists(PATH_CONFIG):

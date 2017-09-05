@@ -21,6 +21,10 @@ Main
 """
 
 from checkmailslib.check import CheckMails
+import logging
 
-app = CheckMails()
-app.mainloop()
+try:
+    app = CheckMails()
+    app.mainloop()
+finally:
+    logging.shutdown()
