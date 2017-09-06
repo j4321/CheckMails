@@ -7,16 +7,19 @@ from setuptools import setup
 import os
 
 images = [os.path.join("checkmailslib/images/", img) for img in os.listdir("checkmailslib/images/")]
-data_files = [("share/applications", ["checkmails.desktop"]),
-              ("share/checkmails/images/", images),
-              ("share/doc/checkmails/", ["README.rst", "changelog"]),
-              ("share/man/man1", ["checkmails.1.gz"]),
-              ("share/locale/en_US/LC_MESSAGES/", ["checkmailslib/locale/en_US/LC_MESSAGES/checkmails.mo"]),
-              ("share/locale/fr_FR/LC_MESSAGES/", ["checkmailslib/locale/fr_FR/LC_MESSAGES/checkmails.mo"]),
-              ("share/pixmaps", ["checkmails.svg"])]
+data_files = [("/usr/share/applications", ["checkmails.desktop"]),
+              ("/usr/share/checkmails/images/", images),
+              ("/usr/share/doc/checkmails/", ["README.rst", "changelog"]),
+              ("/usr/share/man/man1", ["checkmails.1.gz"]),
+              ("/usr/share/locale/en_US/LC_MESSAGES/", ["checkmailslib/locale/en_US/LC_MESSAGES/checkmails.mo"]),
+              ("/usr/share/locale/fr_FR/LC_MESSAGES/", ["checkmailslib/locale/fr_FR/LC_MESSAGES/checkmails.mo"]),
+              ("/usr/share/pixmaps", ["checkmails.svg"])]
+
+with open("checkmailslib/version.py") as file:
+    exec(file.read())
 
 setup(name = "checkmails",
-      version = "1.1.5",
+      version = __version__,
       description = "System tray unread mail checker",
       author = "Juliette Monsel",
       author_email = "j_4321@protonmail.com",

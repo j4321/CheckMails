@@ -36,7 +36,6 @@ Copyright 2007-2013 elementary LLC.
 Constants
 """
 
-import pkg_resources
 import hashlib
 from Crypto.Cipher import AES
 from Crypto import Random
@@ -48,8 +47,6 @@ from subprocess import check_output, CalledProcessError
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
-
-VERSION = pkg_resources.require("checkmails")[0].version
 
 # --- paths
 PATH = os.path.dirname(__file__)

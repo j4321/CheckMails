@@ -31,8 +31,8 @@ from html.parser import HTMLParser
 from webbrowser import open as webOpen
 from tkinter import Toplevel, PhotoImage
 from tkinter.ttk import Label, Button, Frame, Checkbutton
-from checkmailslib.constants import VERSION, CONFIG, save_config, IM_QUESTION_DATA, IMAGE2
-
+from checkmailslib.constants import CONFIG, save_config, IM_QUESTION_DATA, IMAGE2
+from checkmailslib.version import __version__
 
 class VersionParser(HTMLParser):
     def __init__(self, *args, **kwargs):
@@ -129,7 +129,7 @@ class UpdateChecker(Toplevel):
         try:
             with request.urlopen('https://sourceforge.net/projects/checkmails') as page:
                 latest_version = self.version_parser.feed(page.read().decode())
-            self.update = latest_version > VERSION
+            self.update = latest_version > __version__
         except error.URLError as e:
             if e.reason.errno == -2:
                 # no Internet connection

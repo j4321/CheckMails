@@ -24,7 +24,8 @@ About dialog
 from webbrowser import open as webOpen
 from tkinter import Text, Toplevel, PhotoImage
 from tkinter.ttk import Button, Label
-from checkmailslib.constants import ICON_48, VERSION
+from checkmailslib.constants import ICON_48
+from checkmailslib.version import __version__
 
 
 class About(Toplevel):
@@ -39,8 +40,7 @@ class About(Toplevel):
         Label(self, image=self.image).grid(row=0, columnspan=2, pady=10)
 
         Label(self,
-                  text=_("CheckMails %(version)s")
-                  % ({"version": VERSION})).grid(row=1, columnspan=2)
+              text=_("CheckMails %(version)s") % ({"version": __version__})).grid(row=1, columnspan=2)
         Label(self, text=_("System tray unread mail checker")).grid(row=2, columnspan=2, padx=10)
         Label(self, text="Copyright (C) Juliette Monsel 2016-2017").grid(row=3, columnspan=2)
         Label(self, text="j_4321@protonmail.com").grid(row=4, columnspan=2)
