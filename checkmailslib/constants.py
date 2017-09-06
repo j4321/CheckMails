@@ -73,7 +73,7 @@ LOG_PATH = os.path.join(LOCAL_PATH, "checkmails.log")
 
 # --- log
 handler = TimedRotatingFileHandler(LOG_PATH, when='midnight',
-                                   interval=1, backupCount=5)
+                                   interval=1, backupCount=7)
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)-15s %(levelname)s: %(message)s',
                     handlers=[handler])
