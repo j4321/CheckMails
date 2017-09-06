@@ -264,10 +264,10 @@ class CheckMails(Tk):
                 inactive.append(box)
                 CONFIG.set("Mailboxes", "active", ", ".join(active))
                 CONFIG.set("Mailboxes", "inactive", ", ".join(inactive))
-                logging.exception("Incorrect login or password for %(mailbox)s" % {"mailbox": box})
+                logging.error("Incorrect login or password for %(mailbox)s" % {"mailbox": box})
             else:
                 # try to reconnect
-                logging.exception('%s: %s:' % (type(e), str(e)))
+                logging.error('%s: %s' % (box, e))
                 run(["notify-send", "-i", "dialog-error", str(type(e)),
                      str(e)])
                 self.logout(box, reconnect=True)
