@@ -15,27 +15,38 @@ Tk GUI toolkit.
 Install
 -------
 
-For Archlinux users, CheckMails is available on `AUR <https://aur.archlinux.org/packages/checkmails>`__.
+- Archlinux
+    CheckMails is available on `AUR <https://aur.archlinux.org/packages/checkmails>`__.
 
-First, install the missing dependencies among:
- - Tkinter (Python wrapper for Tk)
- - Tktray https://code.google.com/archive/p/tktray/downloads
- - libnotify and a notification server if your desktop environment does not provide one.
-   (see https://wiki.archlinux.org/index.php/Desktop_notifications for more details)
- - PyCrypto https://pypi.python.org/pypi/pycrypto
- - Pillow https://pypi.python.org/pypi/Pillow
+- Ubuntu
+    CheckMails is available in the PPA `ppa:j-4321-i/ppa`.
+    
+    ::
+        
+        $ sudo add-apt-repository ppa:j-4321-i/ppa
+        $ sudo apt-get update
+        $ sudo apt-get install checkmails
 
-For instance, in Ubuntu/Debian you will need to install the following packages:
-python3-tk, tk-tktray, libnotify and the notification server of your choice,
-python3-crypto, python3-pil
+- Source code
+    First, install the missing dependencies among:
+     - Tkinter (Python wrapper for Tk)
+     - Tktray https://code.google.com/archive/p/tktray/downloads
+     - libnotify and a notification server if your desktop environment does not provide one.
+       (see https://wiki.archlinux.org/index.php/Desktop_notifications for more details)
+     - PyCrypto https://pypi.python.org/pypi/pycrypto
+     - Pillow https://pypi.python.org/pypi/Pillow
 
-In Archlinux, you will need to install the following packages:
-tk, tktray (`AUR <https://aur.archlinux.org/packages/tktray>`__), libnotify and the notification server of your choice,
-python-crypto, python-pillow
+    For instance, in Ubuntu/Debian you will need to install the following packages:
+    python3-tk, tk-tktray, libnotify and the notification server of your choice,
+    python3-crypto, python3-pil
 
-Then install the application:
-::
-    $ sudo python3 setup.py install
+    In Archlinux, you will need to install the following packages:
+    tk, tktray (`AUR <https://aur.archlinux.org/packages/tktray>`__), libnotify and the notification server of your choice,
+    python-crypto, python-pillow
+
+    Then install the application:
+    ::
+        $ sudo python3 setup.py install
 
 You can now launch it from `Menu > Utility > CheckMails`. You can launch
 it from the command line with `checkmails`. In this last case, you will see
