@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 # -*- coding:Utf-8 -*-
 """
-Checkmails - System tray unread mail checker
+CheckMails - System tray unread mail checker
 Copyright 2016 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails is free software: you can redistribute it and/or modify
