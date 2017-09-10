@@ -16,9 +16,11 @@ Install
 -------
 
 - Archlinux
+
     CheckMails is available on `AUR <https://aur.archlinux.org/packages/checkmails>`__.
 
 - Ubuntu
+
     CheckMails is available in the PPA `ppa:j-4321-i/ppa`.
     
     ::
@@ -28,6 +30,7 @@ Install
         $ sudo apt-get install checkmails
 
 - Source code
+
     First, install the missing dependencies among:
      - Tkinter (Python wrapper for Tk)
      - Tktray https://code.google.com/archive/p/tktray/downloads
