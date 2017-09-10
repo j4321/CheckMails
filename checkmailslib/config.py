@@ -28,6 +28,7 @@ from tkinter import Toplevel, Menu, StringVar, PhotoImage
 from tkinter.messagebox import showinfo
 from tkinter.ttk import Label, Button, Entry, Menubutton, Frame, Style, Combobox
 
+
 class Config(Toplevel):
     """ Configuration dialog to set times and language. """
 
@@ -37,42 +38,42 @@ class Config(Toplevel):
 
         style = Style(self)
         style.map("TCombobox",
-                  fieldbackground=[('readonly','white')],
+                  fieldbackground=[('readonly', 'white')],
                   selectbackground=[('readonly', 'white')],
                   selectforeground=[('readonly', 'black')])
 
         # validation of the entries : only numbers are allowed
         self._validate_entry_nb = self.register(self.validate_entry_nb)
 
-        ### Times
+        # --- Times
         Label(self,
               text=_("Time between two checks")).grid(row=0, column=0,
-                                                      padx=(10,4), pady=(10,4),
+                                                      padx=(10, 4), pady=(10, 4),
                                                       sticky="e")
         Label(self, justify="right",
               text=_("Maximum time allowed for login or check\n\
-(then the connection is reset)")).grid(row=1, column=0, padx=(10,4), pady=4, sticky="e")
+(then the connection is reset)")).grid(row=1, column=0, padx=(10, 4), pady=4, sticky="e")
         self.time_entry = Entry(self, width=5, justify="center",
                                 validate="key",
                                 validatecommand=(self._validate_entry_nb, "%P"))
-        self.time_entry.grid(row=0, column=1, padx=(4,0), pady=(10,4))
-        self.time_entry.insert(0, "%g" % (CONFIG.getint("General", "time")/60000))
+        self.time_entry.grid(row=0, column=1, padx=(4, 0), pady=(10, 4))
+        self.time_entry.insert(0, "%g" % (CONFIG.getint("General", "time") / 60000))
         self.timeout_entry = Entry(self, width=5, justify="center",
                                    validate="key",
                                    validatecommand=(self._validate_entry_nb, "%P"))
-        self.timeout_entry.grid(row=1, column=1, padx=(4,0), pady=4)
-        self.timeout_entry.insert(0, "%g" % (CONFIG.getint("General", "timeout")/60000))
-        Label(self, text="min").grid(row=0, column=2, padx=(0,10), pady=(10,4))
-        Label(self, text="min").grid(row=1, column=2, padx=(0,10), pady=4)
+        self.timeout_entry.grid(row=1, column=1, padx=(4, 0), pady=4)
+        self.timeout_entry.insert(0, "%g" % (CONFIG.getint("General", "timeout") / 60000))
+        Label(self, text="min").grid(row=0, column=2, padx=(0, 10), pady=(10, 4))
+        Label(self, text="min").grid(row=1, column=2, padx=(0, 10), pady=4)
 
         frame = Frame(self)
-        frame.grid(row=2,columnspan=3, padx=6, pady=(0,6))
+        frame.grid(row=2, columnspan=3, padx=6, pady=(0, 6))
 
-        ### Language
+        # --- Language
         Label(frame, text=_("Language")).grid(row=0, column=0,
                                               padx=8, pady=4, sticky="e")
-        lang = {"fr":"Français", "en":"English"}
-        self.lang = StringVar(self, lang[CONFIG.get("General","language")])
+        lang = {"fr": "Français", "en": "English"}
+        self.lang = StringVar(self, lang[CONFIG.get("General", "language")])
         menu_lang = Menu(frame, tearoff=False)
         Menubutton(frame, menu=menu_lang, width=9,
                    textvariable=self.lang).grid(row=0, column=1,
@@ -81,7 +82,7 @@ class Config(Toplevel):
                                   variable=self.lang, command=self.translate)
         menu_lang.add_radiobutton(label="Français", value="Français",
                                   variable=self.lang, command=self.translate)
-        ### Font
+        # --- Font
         local_path = join(expanduser("~"), ".fonts")
         sys_path = "/usr/share/fonts/TTF"
         local_fonts = listdir(local_path)
@@ -91,9 +92,8 @@ class Config(Toplevel):
         w = max([len(f) for f in self.ttf_fonts])
         self.fonts = list(self.ttf_fonts)
         self.fonts.sort()
-        self.font = Combobox(frame, values=self.fonts, width=(w*2)//3,
-                                    exportselection=False,
-                                    state="readonly")
+        self.font = Combobox(frame, values=self.fonts, width=(w * 2) // 3,
+                             exportselection=False, state="readonly")
         current_font = CONFIG.get("General", "font")
         if current_font in self.fonts:
             i = self.fonts.index(current_font)
@@ -109,9 +109,9 @@ class Config(Toplevel):
         self.update_preview()
         self.font.bind('<<ComboboxSelected>>', self.update_preview)
 
-        ### Ok/Cancel
+        # --- Ok/Cancel
         frame_button = Frame(self)
-        frame_button.grid(row=3, columnspan=3, padx=6, pady=(0,6))
+        frame_button.grid(row=3, columnspan=3, padx=6, pady=(0, 6))
         Button(frame_button, text="Ok",
                command=self.ok).grid(row=2, column=0, padx=8, pady=4)
         Button(frame_button, text=_("Cancel"),
@@ -125,17 +125,17 @@ class Config(Toplevel):
         font_path = self.ttf_fonts[font_name]
         try:
             font = ImageFont.truetype(font_path, 10)
-            draw.text((6//len(nb),4), nb, fill=(255,0,0), font=font)
+            draw.text((6 // len(nb), 4), nb, fill=(255, 0, 0), font=font)
         except OSError:
-            draw.text((6//len(nb),4), nb, fill=(255,0,0))
+            draw.text((6 // len(nb), 4), nb, fill=(255, 0, 0))
         im.save(PREV)
         self.img_prev.configure(file=PREV)
         self.prev.configure(image=self.img_prev)
         self.prev.update_idletasks()
 
     def ok(self):
-        time = float(self.time_entry.get())*60000
-        timeout = float(self.timeout_entry.get())*60000
+        time = float(self.time_entry.get()) * 60000
+        timeout = float(self.timeout_entry.get()) * 60000
         CONFIG.set("General", "time", "%i" % time)
         CONFIG.set("General", "timeout", "%i" % timeout)
         CONFIG.set("General", "language", self.lang.get().lower()[:2])
@@ -145,7 +145,7 @@ class Config(Toplevel):
     def translate(self):
         showinfo("Information",
                  _("The language setting will take effect after restarting the application"),
-                parent=self)
+                 parent=self)
 
     @staticmethod
     def validate_entry_nb(P):
@@ -155,4 +155,3 @@ class Config(Toplevel):
         for p in parts:
             b = b and (p == "" or p.isdigit())
         return b
-

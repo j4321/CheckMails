@@ -204,9 +204,9 @@ class CheckMails(Tk):
         font_path = CONFIG.get("General", "font")
         try:
             font = ImageFont.truetype(font_path, 10)
-            draw.text((6//len(nb),4), nb, fill=(255,0,0), font=font)
+            draw.text((6 // len(nb), 4), nb, fill=(255, 0, 0), font=font)
         except OSError:
-            draw.text((6//len(nb),4), nb, fill=(255,0,0))
+            draw.text((6 // len(nb), 4), nb, fill=(255, 0, 0))
         im.save(ICON)
         self.img.configure(file=ICON)
 
@@ -251,7 +251,7 @@ class CheckMails(Tk):
                              b'LOGIN failed']:
                 # Identification error
                 run(["notify-send", "-i", "dialog-error", _("Error"),
-                       _("Incorrect login or password for %(mailbox)s") % {"mailbox": box}])
+                     _("Incorrect login or password for %(mailbox)s") % {"mailbox": box}])
                 # remove box from the active mailboxes
                 del(self.boxes[box])
                 active = CONFIG.get("Mailboxes", "active").split(", ")
@@ -268,15 +268,15 @@ class CheckMails(Tk):
             else:
                 # try to reconnect
                 logging.error('%s: %s' % (box, e))
-                run(["notify-send", "-i", "dialog-error", str(type(e)),
-                     str(e)])
+#                run(["notify-send", "-i", "dialog-error", str(type(e)),
+#                     str(e)])
                 self.logout(box, reconnect=True)
         except gaierror as e:
             if e.args == (-2, 'Name or service not known'):
                 # Either there is no internet connection or the IMAP server is wrong
                 if internet_on():
-                    run(["notify-send", "-i", "dialog-error",_("Error"),
-                           _("Wrong IMAP server for %(mailbox)s.") % {"mailbox": box}])
+                    run(["notify-send", "-i", "dialog-error", _("Error"),
+                         _("Wrong IMAP server for %(mailbox)s.") % {"mailbox": box}])
                     # remove box from the active mailboxes
                     active = CONFIG.get("Mailboxes", "active").split(", ")
                     inactive = CONFIG.get("Mailboxes", "inactive").split(", ")
@@ -301,7 +301,7 @@ class CheckMails(Tk):
                     self.internet_id = self.after(self.timeout, self.test_connection)
             else:
                 # try to reconnect
-                logging.exception(str(e))
+                logging.exception(str(type(e)))
                 run(["notify-send", "-i", "dialog-error", _("Error"),
                      traceback.format_exc()])
                 self.logout(box, reconnect=True)
@@ -354,11 +354,10 @@ class CheckMails(Tk):
         """
         if force or not (box in self.threads_logout and self.threads_logout[box].isAlive()):
             self.threads_logout[box] = Thread(target=self.logout_mailbox,
-                                                name='logout_' + box,
-                                                daemon=True,
-                                                args=(box,reconnect))
+                                              name='logout_' + box,
+                                              daemon=True,
+                                              args=(box, reconnect))
             self.threads_logout[box].start()
-
 
     def launch_check(self, force_notify=False):
         """
@@ -401,9 +400,9 @@ class CheckMails(Tk):
                         nbtot += nb
                 self.change_icon(nbtot)
             else:
-                logging.exception(str(e))
-                run(["notify-send", "-i", "dialog-error", _("Error"),
-                     traceback.format_exc()])
+                logging.exception(str(type(e)))
+#                run(["notify-send", "-i", "dialog-error", _("Error"),
+#                     traceback.format_exc()])
             self.logout(box, force=True, reconnect=True)
 
     def check_mails(self, force_notify=True):
@@ -475,14 +474,14 @@ class CheckMails(Tk):
             else:
                 showerror(_('Error'), _('Incorrect password!'))
                 logging.warning('Authentication failed')
-                getpwd.delete(0,"end")
+                getpwd.delete(0, "end")
         top = Toplevel(self)
         top.title(_("Password"))
         top.resizable(False, False)
-        Label(top, text=_("Enter password")).pack(padx=10, pady=(10,4))
+        Label(top, text=_("Enter password")).pack(padx=10, pady=(10, 4))
         getpwd = Entry(top, show='*', justify='center')
         getpwd.pack(padx=10, pady=4)
-        Button(top, text="Ok", command=ok).pack(padx=10, pady=(4,10))
+        Button(top, text="Ok", command=ok).pack(padx=10, pady=(4, 10))
         getpwd.bind("<Key-Return>", ok)
         getpwd.focus_set()
         self.wait_window(top)
@@ -507,13 +506,13 @@ class CheckMails(Tk):
         top.iconphoto(True, self.im_icon)
         top.title(_("Set password"))
         top.resizable(False, False)
-        Label(top, text=_("Enter master password")).pack(padx=10, pady=(4,10))
+        Label(top, text=_("Enter master password")).pack(padx=10, pady=(4, 10))
         getpwd = Entry(top, show='*', justify='center')
         getpwd.pack(padx=10, pady=4)
         Label(top, text=_("Confirm master password")).pack(padx=10, pady=4)
         confpwd = Entry(top, show='*', justify='center')
         confpwd.pack(padx=10, pady=4)
-        Button(top, text="Ok", command=ok).pack(padx=10, pady=(4,10))
+        Button(top, text="Ok", command=ok).pack(padx=10, pady=(4, 10))
         confpwd.bind("<Key-Return>", ok)
         getpwd.focus_set()
         self.wait_window(top)
@@ -554,7 +553,7 @@ class CheckMails(Tk):
         top = Toplevel(self)
         top.iconphoto(True, self.im_icon)
         top.resizable(False, False)
-        Label(top, text=_("Old password")).pack(padx=10, pady=(10,4))
+        Label(top, text=_("Old password")).pack(padx=10, pady=(10, 4))
         oldpwd = Entry(top, show='*', justify='center')
         oldpwd.pack(padx=10, pady=4)
         Label(top, text=_("New password")).pack(padx=10, pady=4)
@@ -563,7 +562,7 @@ class CheckMails(Tk):
         Label(top, text=_("Confirm password")).pack(padx=10, pady=4)
         confpwd = Entry(top, show='*', justify='center')
         confpwd.pack(padx=10, pady=4)
-        Button(top, text="Ok", command=ok).pack(padx=10, pady=(4,10))
+        Button(top, text="Ok", command=ok).pack(padx=10, pady=(4, 10))
         confpwd.bind("<Key-Return>", ok)
         oldpwd.focus_set()
         self.wait_window(top)
@@ -585,7 +584,3 @@ class CheckMails(Tk):
                 os.remove(os.path.join(LOCAL_PATH, mailbox))
             logging.info('Reset')
             self.set_password()
-
-
-
-

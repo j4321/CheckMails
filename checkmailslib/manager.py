@@ -29,8 +29,9 @@ import os
 
 
 class Manager(Toplevel):
-    """ Mailbox Manager """
+    """Mailbox Manager."""
     def __init__(self, master, pwd):
+        """Create the mailbox manager dialog."""
         Toplevel.__init__(self, master)
         self.title(_("Mailbox Manager"))
         self.minsize(200, 10)
@@ -52,12 +53,12 @@ class Manager(Toplevel):
         self.frame = Frame(self)
         self.columnconfigure(0, weight=1)
         self.frame.columnconfigure(1, weight=1)
-        self.frame.grid(row=0, column=0,padx=10, pady=10, sticky="eswn")
+        self.frame.grid(row=0, column=0, padx=10, pady=10, sticky="eswn")
         i = -1
-        for i,box in enumerate(active):
+        for i, box in enumerate(active):
             c = Checkbutton(self.frame)
             c.state(('selected',))
-            c.grid(row=i, column=0, pady=4, padx=(4,0))
+            c.grid(row=i, column=0, pady=4, padx=(4, 0))
             l = Label(self.frame, text=box)
             l.grid(row=i, column=1, padx=4, pady=4)
             b_edit = Button(self.frame, image=self.im_edit, width=1,
@@ -70,7 +71,7 @@ class Manager(Toplevel):
         for box in inactive:
             i += 1
             c = Checkbutton(self.frame)
-            c.grid(row=i, column=0, pady=4, padx=(4,0))
+            c.grid(row=i, column=0, pady=4, padx=(4, 0))
             l = Label(self.frame, text=box)
             l.grid(row=i, column=1, padx=4, pady=4)
             b_edit = Button(self.frame, image=self.im_edit, width=1,
@@ -82,10 +83,10 @@ class Manager(Toplevel):
             self.mailboxes[box] = [c, l, b_edit, b_del]
 
         self.b_add = Button(self.frame, image=self.im_add, command=self.mailbox_info, width=1)
-        self.b_add.grid(row=i+1, column=0, columnspan=4, pady=4, padx=4, sticky='w')
-
+        self.b_add.grid(row=i + 1, column=0, columnspan=4, pady=4, padx=4, sticky='w')
 
     def quit(self):
+        """Save configuration and destroy the dialog."""
         active = []
         inactive = []
         for box, (c, l, b1, b2) in self.mailboxes.items():
@@ -99,6 +100,7 @@ class Manager(Toplevel):
         self.destroy()
 
     def del_mailbox(self, mailbox):
+        """Delete the mailbox."""
         os.remove(os.path.join(LOCAL_PATH, mailbox))
         c, l, b_edit, b_del = self.mailboxes[mailbox]
         del(self.mailboxes[mailbox])
@@ -108,16 +110,16 @@ class Manager(Toplevel):
         b_del.grid_forget()
 
     def mailbox_info(self, mailbox=""):
-        """ GUI to add or modify a mailbox login information """
+        """GUI to add or modify a mailbox login information."""
         def save(event=None):
             name = name_entry.get().strip()
             if not mailbox:
                 # new mailbox
                 i = self.b_add.grid_info()['row']
-                self.b_add.grid_configure(row=i+1)
+                self.b_add.grid_configure(row=i + 1)
                 c = Checkbutton(self.frame)
                 c.state(('selected',))
-                c.grid(row=i, column=0, pady=4, padx=(4,0))
+                c.grid(row=i, column=0, pady=4, padx=(4, 0))
                 l = Label(self.frame, text=name)
                 l.grid(row=i, column=1, padx=4, pady=4)
                 b_edit = Button(self.frame, image=self.im_edit, width=1,
@@ -136,7 +138,6 @@ class Manager(Toplevel):
                 b_edit.configure(command=lambda m=name: self.mailbox_info(m))
                 b_del.configure(command=lambda m=name: self.del_mailbox(m))
                 self.mailboxes[name] = [c, l, b_edit, b_del]
-
 
             encrypt(name, self.pwd, server_entry.get().strip(),
                     login_entry.get().strip(), password_entry.get().strip(),
@@ -164,24 +165,29 @@ class Manager(Toplevel):
             login_entry.insert(0, "myaddress@mailbox.com")
             folder_entry.insert(0, "inbox")
 
-        Label(top, text=_("Mailbox name")).grid(row=0, column=0, sticky="e", pady=(10,4), padx=(10,1))
-        Label(top, text=_("IMAP server")).grid(row=1, column=0, sticky="e", pady=4, padx=(10,1))
-        Label(top, text=_("Login")).grid(row=2, column=0, sticky="e", pady=4, padx=(10,1))
-        Label(top, text=_("Password")).grid(row=3, column=0, sticky="e", pady=4, padx=(10,1))
-        Label(top, text=_("Folder to check")).grid(row=4, column=0, sticky="e", pady=4, padx=(10,1))
-        name_entry.grid(row=0, column=1, sticky="w", pady=4, padx=(1,10))
-        server_entry.grid(row=1, column=1, sticky="w", pady=4, padx=(1,10))
-        login_entry.grid(row=2, column=1, sticky="w", pady=4, padx=(1,10))
-        password_entry.grid(row=3, column=1, sticky="w", pady=4, padx=(1,10))
-        folder_entry.grid(row=4, column=1, sticky="w", pady=4, padx=(1,10))
+        Label(top, text=_("Mailbox name")).grid(row=0, column=0, sticky="e",
+                                                pady=(10, 4), padx=(10, 1))
+        Label(top, text=_("IMAP server")).grid(row=1, column=0, sticky="e",
+                                               pady=4, padx=(10, 1))
+        Label(top, text=_("Login")).grid(row=2, column=0, sticky="e",
+                                         pady=4, padx=(10, 1))
+        Label(top, text=_("Password")).grid(row=3, column=0, sticky="e",
+                                            pady=4, padx=(10, 1))
+        Label(top, text=_("Folder to check")).grid(row=4, column=0, sticky="e",
+                                                   pady=4, padx=(10, 1))
+        name_entry.grid(row=0, column=1, sticky="w", pady=4, padx=(1, 10))
+        server_entry.grid(row=1, column=1, sticky="w", pady=4, padx=(1, 10))
+        login_entry.grid(row=2, column=1, sticky="w", pady=4, padx=(1, 10))
+        password_entry.grid(row=3, column=1, sticky="w", pady=4, padx=(1, 10))
+        folder_entry.grid(row=4, column=1, sticky="w", pady=4, padx=(1, 10))
         frame = Frame(top)
-        frame.grid(row=5, columnspan=2, pady=(0,6))
-        Button(frame, text="Ok", command=save).grid(row=0, column=0, padx=(10,4),
-                                                    pady=4)
+        frame.grid(row=5, columnspan=2, pady=(0, 6))
+        Button(frame, text="Ok", command=save).grid(row=0, column=0,
+                                                    padx=(10, 4), pady=4)
         Button(frame, text=_("Cancel"), command=top.destroy).grid(row=0,
                                                                   column=1,
                                                                   pady=4,
-                                                                  padx=(10,4))
+                                                                  padx=(10, 4))
         top.grab_set()
         password_entry.bind("<Key-Return>", save)
         name_entry.focus_set()

@@ -34,6 +34,7 @@ from tkinter.ttk import Label, Button, Frame, Checkbutton
 from checkmailslib.constants import CONFIG, save_config, IM_QUESTION_DATA, IMAGE2
 from checkmailslib.version import __version__
 
+
 class VersionParser(HTMLParser):
     def __init__(self, *args, **kwargs):
         HTMLParser.__init__(self, *args, **kwargs)
@@ -86,8 +87,8 @@ class UpdateChecker(Toplevel):
         self.b1 = Button(self, text=_("Yes"), command=self.download)
         self.b1.grid(row=1, column=0, padx=10, pady=10, sticky="e")
         Button(self, text=_("No"), command=self.quit).grid(row=1, column=1,
-                                                              padx=10, pady=10,
-                                                              sticky="w")
+                                                           padx=10, pady=10,
+                                                           sticky="w")
         self.ch = Checkbutton(self, text=_("Check for updates on startup."))
         if CONFIG.getboolean("General", "check_update"):
             self.ch.state(("selected", ))
@@ -136,6 +137,6 @@ class UpdateChecker(Toplevel):
                 self.update = False
             elif e.reason.errno == 104:
                 # connection timed out
-               self.update_available()
+                self.update_available()
             else:
                 raise e

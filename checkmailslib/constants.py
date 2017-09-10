@@ -75,11 +75,12 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)-15s %(levelname)s: %(message)s',
                     handlers=[handler])
 logging.getLogger().addHandler(logging.StreamHandler())
+
 # --- read config file
 CONFIG = ConfigParser()
 if os.path.exists(PATH_CONFIG):
     CONFIG.read(PATH_CONFIG)
-    LANGUE = CONFIG.get("General","language")
+    LANGUE = CONFIG.get("General", "language")
     if not CONFIG.has_option("General", "font"):
         CONFIG.set("General", "font", "LiberationSans-Bold")
     if not CONFIG.has_option("General", "check_update"):
@@ -96,13 +97,14 @@ else:
     CONFIG.set("Mailboxes", "active", "")
     CONFIG.set("Mailboxes", "inactive", "")
 
+
 def save_config():
-    """ sauvegarde du dictionnaire contenant la configuration du logiciel (langue ...) """
+    """Save configuration to config file."""
     with open(PATH_CONFIG, 'w') as fichier:
         CONFIG.write(fichier)
 
-# --- Translation
 
+# --- Translation
 APP_NAME = "checkmails"
 
 if LANGUE not in ["en", "fr"]:
@@ -123,9 +125,10 @@ LANG = gettext.translation(APP_NAME, PATH_LOCALE,
                            languages=[LANGUE], fallback=True)
 LANG.install()
 
+
 # --- Cryptographic functions to safely store login information
 def decrypt(mailbox, pwd):
-    """ Returns the login and password for the mailbox that where encrypted using pwd"""
+    """Returns the login and password for the mailbox that where encrypted using pwd."""
     key = hashlib.sha256(pwd.encode()).digest()
     with open(os.path.join(LOCAL_PATH, mailbox), 'rb') as fich:
         iv = fich.read(AES.block_size)
@@ -133,8 +136,9 @@ def decrypt(mailbox, pwd):
         server, login, password, folder = cipher.decrypt(fich.read()).decode().split("\n")
     return server, login, password, folder
 
+
 def encrypt(mailbox, pwd, server, login, password, folder):
-    """ Encrypt the mailbox connection information using pwd """
+    """Encrypt the mailbox connection information using pwd."""
     key = hashlib.sha256(pwd.encode()).digest()
     iv = Random.new().read(AES.block_size)
     cipher = AES.new(key, AES.MODE_CFB, iv)
@@ -200,9 +204,9 @@ SUVORK5CYII=
 
 
 def internet_on():
+    """Check the Internet connexion."""
     try:
         check_output(["ping", "-c", "1", "www.google.com"])
         return True
     except CalledProcessError:
         return False
-
