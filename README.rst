@@ -12,6 +12,14 @@ for each mailbox is stored in an encrypted file using a master password.
 CheckMails is designed for Linux. It is written in Python 3 and relies upon
 Tk GUI toolkit.
 
+Warning
+-------
+
+CheckMails is a system tray unread mail checker, so it does not work on 
+desktop environments with no system tray (like Unity). Furthermore, it relies
+on tktray which is an old library, so some desktop environment system trays
+are not fully compatible with it (e.g. in KDE/plasma).
+
 Install
 -------
 

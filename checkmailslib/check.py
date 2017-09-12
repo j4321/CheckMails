@@ -28,7 +28,10 @@ from imaplib import IMAP4_SSL, IMAP4
 from socket import gaierror
 from threading import Thread
 import crypt
-from subprocess import run
+try:
+    from subprocess import run
+except ImportError:
+    from subprocess import call as run
 from tkinter import Tk, PhotoImage, Toplevel, TclError
 from tkinter.messagebox import showerror, askokcancel
 from tkinter.ttk import Entry, Label, Button, Style
