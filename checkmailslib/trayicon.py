@@ -51,8 +51,8 @@ class TrayIcon:
         self.menu_items.append(sep)
         sep.show()
 
-    def change_icon(self, icon):
-        self.ind.set_icon(icon)
+    def change_icon(self, icon, desc):
+        self.ind.set_icon_full(icon, desc)
 
 
 def gtk_loop(tk_window):

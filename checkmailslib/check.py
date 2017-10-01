@@ -38,7 +38,7 @@ from tkinter.ttk import Entry, Label, Button, Style
 from PIL import Image, ImageDraw, ImageFont
 from checkmailslib.trayicon import TrayIcon, gtk_loop
 from checkmailslib.constants import IMAGE, ICON, IMAGE2, save_config
-from checkmailslib.constants import encrypt, decrypt, LOCAL_PATH, CONFIG, internet_on
+from checkmailslib.constants import encrypt, decrypt, LOCAL_PATH, CONFIG, internet_on, TTF_FONTS
 from checkmailslib.manager import Manager
 from checkmailslib.config import Config
 from checkmailslib.about import About
@@ -58,6 +58,7 @@ class CheckMails(Tk):
 #        self.img = PhotoImage(file=IMAGE)
 
         self.icon = TrayIcon("checkmails", IMAGE)
+        self.icon.add_menu_item(label=_("Details"), command=self.display)
         self.icon.add_menu_item(label=_("Check"), command=self.check_mails)
         self.icon.add_menu_item(label=_("Reconnect"),
                                    command=self.reconnect)
@@ -78,7 +79,6 @@ class CheckMails(Tk):
                                    command=lambda: About(self))
         self.icon.add_menu_separator()
         self.icon.add_menu_item(label=_("Quit"), command=self.quit)
-#        self.icon.bind('<Button-1>', self.display)
         gtk_loop(self)
 
         self.style = Style(self)
@@ -133,19 +133,19 @@ class CheckMails(Tk):
 
     def start_stop(self):
         """Suspend checks."""
-        if self.icon.menu_items[2].get_label() == _("Suspend"):
+        if self.icon.menu_items[3].get_label() == _("Suspend"):
             self.after_cancel(self.check_id)
             self.after_cancel(self.timer_id)
             self.after_cancel(self.notif_id)
             self.after_cancel(self.internet_id)
-            self.icon.change_icon(IMAGE)
-            self.icon.menu_items[2].set_label(_("Restart"))
-            self.icon.menu_items[0].set_sensitive(False)
+            self.icon.change_icon(IMAGE, "checkmails suspended")
+            self.icon.menu_items[3].set_label(_("Restart"))
             self.icon.menu_items[1].set_sensitive(False)
+            self.icon.menu_items[2].set_sensitive(False)
         else:
-            self.icon.menu_items[2].set_label(_("Suspend"))
-            self.icon.menu_items[0].set_sensitive(True)
+            self.icon.menu_items[3].set_label(_("Suspend"))
             self.icon.menu_items[1].set_sensitive(True)
+            self.icon.menu_items[2].set_sensitive(True)
             self.reconnect()
 
     def reconnect(self):
@@ -155,8 +155,8 @@ class CheckMails(Tk):
             self.logout(box, True, True)
         self.check_id = self.after(20000, self.launch_check, False)
 
-    def display(self, event):
-        if self.icon.menu_items[2].get_label() == _("Suspend"):
+    def display(self):
+        if self.icon.menu_items[3].get_label() == _("Suspend"):
             notif = self.notif
             if not notif:
                 notif = _("Checking...")
@@ -200,7 +200,7 @@ class CheckMails(Tk):
         if not self.info_conn:
             self.notif = _("No active mailbox")
             run(["notify-send", "-i", IMAGE2, _("No active mailbox"), _("Use the mailbox manager to configure a mailbox.")])
-        elif self.icon.menu_items[2].get_label() == _("Suspend"):
+        elif self.icon.menu_items[3].get_label() == _("Suspend"):
             self.notif = ""
             for box in self.info_conn:
                 self.connect(box)
@@ -213,7 +213,7 @@ class CheckMails(Tk):
         im = Image.open(IMAGE)
         W, H = im.size
         draw = ImageDraw.Draw(im)
-        font_path = CONFIG.get("General", "font")
+        font_path = TTF_FONTS[CONFIG.get("General", "font")]
         try:
             font = ImageFont.truetype(font_path, 70)
             w, h = draw.textsize(nb, font=font)
@@ -223,14 +223,14 @@ class CheckMails(Tk):
             w, h = draw.textsize(nb)
             draw.text(((W - w) / 2, (H - h) / 2), nb, fill=(255, 0, 0))
         im.save(ICON)
-        self.icon.change_icon(ICON)
+        self.icon.change_icon(ICON, "checkmails %s" % nb)
 
     def config(self):
         """Open config dialog to set times and language."""
         Config(self)
         self.time = CONFIG.getint("General", "time")
         self.timeout = CONFIG.getint("General", "timeout")
-        if self.icon.menu_items[2].get_label() == _("Suspend"):
+        if self.icon.menu_items[3].get_label() == _("Suspend"):
             self.check_mails(False)
 
     def manage_mailboxes(self):

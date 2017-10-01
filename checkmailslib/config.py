@@ -22,7 +22,7 @@ Configuration dialog
 from re import search
 from os.path import expanduser, join
 from os import listdir
-from checkmailslib.constants import CONFIG, save_config, IMAGE, PREV
+from checkmailslib.constants import CONFIG, save_config, IMAGE, PREV, TTF_FONTS
 from PIL import Image, ImageDraw, ImageFont
 from tkinter import Toplevel, Menu, StringVar, PhotoImage
 from tkinter.messagebox import showinfo
@@ -83,17 +83,8 @@ class Config(Toplevel):
         menu_lang.add_radiobutton(label="Français", value="Français",
                                   variable=self.lang, command=self.translate)
         # --- Font
-        local_path = join(expanduser("~"), ".fonts")
-        sys_path = "/usr/share/fonts/TTF"
-        try:
-            local_fonts = listdir(local_path)
-        except FileNotFoundError:
-            local_fonts = []
-        self.ttf_fonts = {f.split(".")[0]: join(local_path, f)
-                          for f in local_fonts if search(r".(ttf|TTF)$", f)}
-        self.ttf_fonts.update({f.split(".")[0]: join(sys_path, f) for f in listdir(sys_path)})
-        w = max([len(f) for f in self.ttf_fonts])
-        self.fonts = list(self.ttf_fonts)
+        w = max([len(f) for f in TTF_FONTS])
+        self.fonts = list(TTF_FONTS)
         self.fonts.sort()
         self.font = Combobox(frame, values=self.fonts, width=(w * 2) // 3,
                              exportselection=False, state="readonly")
@@ -125,12 +116,16 @@ class Config(Toplevel):
         im = Image.open(IMAGE)
         draw = ImageDraw.Draw(im)
         font_name = self.font.get()
-        font_path = self.ttf_fonts[font_name]
+        font_path = TTF_FONTS[font_name]
+        W, H = im.size
         try:
-            font = ImageFont.truetype(font_path, 10)
-            draw.text((6 // len(nb), 4), nb, fill=(255, 0, 0), font=font)
+            font = ImageFont.truetype(font_path, 70)
+            w, h = draw.textsize(nb, font=font)
+            draw.text(((W - w) / 2, (H - h) / 2), nb, fill=(255, 0, 0),
+                      font=font)
         except OSError:
-            draw.text((6 // len(nb), 4), nb, fill=(255, 0, 0))
+            w, h = draw.textsize(nb)
+            draw.text(((W - w) / 2, (H - h) / 2), nb, fill=(255, 0, 0))
         im.save(PREV)
         self.img_prev.configure(file=PREV)
         self.prev.configure(image=self.img_prev)
@@ -142,6 +137,7 @@ class Config(Toplevel):
         CONFIG.set("General", "time", "%i" % time)
         CONFIG.set("General", "timeout", "%i" % timeout)
         CONFIG.set("General", "language", self.lang.get().lower()[:2])
+        CONFIG.set("General", "font", self.font.get())
         save_config()
         self.destroy()
 

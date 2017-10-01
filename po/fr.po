@@ -208,7 +208,7 @@ msgstr "Vérification..."
 
 #: checkmailslib/check.py:140
 msgid "Check suspended"
-msgstr "Vérifiaction suspendue"
+msgstr "Vérification suspendue"
 
 #: checkmailslib/check.py:141 checkmailslib/check.py:368
 #: checkmailslib/check.py:405 checkmailslib/check.py:407
