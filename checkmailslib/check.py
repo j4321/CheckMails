@@ -88,6 +88,7 @@ class CheckMails(Tk):
         self.style.configure("TFrame", background=bg)
         self.style.configure("TButton", background=bg)
         self.style.configure("TCheckbutton", background=bg)
+        self.style.configure("TMenubutton", background=bg)
         self.style.map('TCheckbutton',
                        indicatorbackground=[('pressed', '#dcdad5'),
                                             ('!disabled', 'alternate', 'white'),
