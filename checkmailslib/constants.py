@@ -151,8 +151,9 @@ def encrypt(mailbox, pwd, server, login, password, folder):
 # --- Images
 ICON = os.path.join(LOCAL_PATH, "icon_mail.png")
 PREV = "/tmp/checkmails_preview.png"
-IMAGE = os.path.join(PATH_IMAGES, "mail.png")
+IMAGE = os.path.join(PATH_IMAGES, "mail128.png")
 ICON_48 = os.path.join(PATH_IMAGES, "mail48.png")
+#ICON_128 = os.path.join(PATH_IMAGES, "mail128.png")
 IMAGE2 = os.path.join(PATH_IMAGES, "mail.svg")
 ADD = os.path.join(PATH_IMAGES, "add.png")
 DEL = os.path.join(PATH_IMAGES, "del.png")

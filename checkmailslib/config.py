@@ -85,7 +85,10 @@ class Config(Toplevel):
         # --- Font
         local_path = join(expanduser("~"), ".fonts")
         sys_path = "/usr/share/fonts/TTF"
-        local_fonts = listdir(local_path)
+        try:
+            local_fonts = listdir(local_path)
+        except FileNotFoundError:
+            local_fonts = []
         self.ttf_fonts = {f.split(".")[0]: join(local_path, f)
                           for f in local_fonts if search(r".(ttf|TTF)$", f)}
         self.ttf_fonts.update({f.split(".")[0]: join(sys_path, f) for f in listdir(sys_path)})

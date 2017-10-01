@@ -20,6 +20,7 @@ desktop environments with no system tray (like Unity). Furthermore, it relies
 on tktray which is an old library, so some desktop environment system trays
 are not fully compatible with it (e.g. in KDE/plasma).
 
+
 Install
 -------
 

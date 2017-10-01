@@ -36,7 +36,7 @@ from tkinter import Tk, PhotoImage, Toplevel, TclError
 from tkinter.messagebox import showerror, askokcancel
 from tkinter.ttk import Entry, Label, Button, Style
 from PIL import Image, ImageDraw, ImageFont
-from checkmailslib.tktray import Icon
+from checkmailslib.trayicon import TrayIcon, gtk_loop
 from checkmailslib.constants import IMAGE, ICON, IMAGE2, save_config
 from checkmailslib.constants import encrypt, decrypt, LOCAL_PATH, CONFIG, internet_on
 from checkmailslib.manager import Manager
@@ -55,32 +55,39 @@ class CheckMails(Tk):
         self.im_icon = PhotoImage(master=self, file=IMAGE)
         self.iconphoto(True, self.im_icon)
         # system tray icon
-        self.img = PhotoImage(file=IMAGE)
-        self.icon = Icon(self, image=self.img)
-        self.icon.menu.add_command(label=_("Check"), command=self.check_mails)
-        self.icon.menu.add_command(label=_("Reconnect"),
+#        self.img = PhotoImage(file=IMAGE)
+
+        self.icon = TrayIcon("checkmails", IMAGE)
+        self.icon.add_menu_item(label=_("Check"), command=self.check_mails)
+        self.icon.add_menu_item(label=_("Reconnect"),
                                    command=self.reconnect)
-        self.icon.menu.add_command(label=_("Suspend"), command=self.start_stop)
-        self.icon.menu.add_separator()
-        self.icon.menu.add_command(label=_("Change password"),
+        self.icon.add_menu_item(label=_("Suspend"), command=self.start_stop)
+        self.icon.add_menu_separator()
+        self.icon.add_menu_item(label=_("Change password"),
                                    command=self.change_password)
-        self.icon.menu.add_command(label=_("Reset password"),
+        self.icon.add_menu_item(label=_("Reset password"),
                                    command=self.reset_password)
-        self.icon.menu.add_separator()
-        self.icon.menu.add_command(label=_("Manage mailboxes"),
+        self.icon.add_menu_separator()
+        self.icon.add_menu_item(label=_("Manage mailboxes"),
                                    command=self.manage_mailboxes)
-        self.icon.menu.add_command(label=_("Preferences"), command=self.config)
-        self.icon.menu.add_separator()
-        self.icon.menu.add_command(label=_("Check for updates"),
+        self.icon.add_menu_item(label=_("Preferences"), command=self.config)
+        self.icon.add_menu_separator()
+        self.icon.add_menu_item(label=_("Check for updates"),
                                    command=lambda: UpdateChecker(self, True))
-        self.icon.menu.add_command(label=_("About"),
+        self.icon.add_menu_item(label=_("About"),
                                    command=lambda: About(self))
-        self.icon.menu.add_separator()
-        self.icon.menu.add_command(label=_("Quit"), command=self.quit)
-        self.icon.bind('<Button-1>', self.display)
+        self.icon.add_menu_separator()
+        self.icon.add_menu_item(label=_("Quit"), command=self.quit)
+#        self.icon.bind('<Button-1>', self.display)
+        gtk_loop(self)
 
         self.style = Style(self)
         self.style.theme_use('clam')
+        bg = self.cget("background")
+        self.style.configure("TLabel", background=bg)
+        self.style.configure("TFrame", background=bg)
+        self.style.configure("TButton", background=bg)
+        self.style.configure("TCheckbutton", background=bg)
         self.style.map('TCheckbutton',
                        indicatorbackground=[('pressed', '#dcdad5'),
                                             ('!disabled', 'alternate', 'white'),
@@ -125,30 +132,30 @@ class CheckMails(Tk):
 
     def start_stop(self):
         """Suspend checks."""
-        if self.icon.menu.entrycget(2, "label") == _("Suspend"):
-            self.icon.after_cancel(self.check_id)
-            self.icon.after_cancel(self.timer_id)
-            self.icon.after_cancel(self.notif_id)
-            self.icon.after_cancel(self.internet_id)
-            self.img.configure(file=IMAGE)
-            self.icon.menu.entryconfigure(2, label=_("Restart"))
-            self.icon.menu.entryconfigure(0, state="disabled")
-            self.icon.menu.entryconfigure(1, state="disabled")
+        if self.icon.menu_items[2].get_label() == _("Suspend"):
+            self.after_cancel(self.check_id)
+            self.after_cancel(self.timer_id)
+            self.after_cancel(self.notif_id)
+            self.after_cancel(self.internet_id)
+            self.icon.change_icon(IMAGE)
+            self.icon.menu_items[2].set_label(_("Restart"))
+            self.icon.menu_items[0].set_sensitive(False)
+            self.icon.menu_items[1].set_sensitive(False)
         else:
-            self.icon.menu.entryconfigure(2, label=_("Suspend"))
-            self.icon.menu.entryconfigure(0, state="normal")
-            self.icon.menu.entryconfigure(1, state="normal")
+            self.icon.menu_items[2].set_label(_("Suspend"))
+            self.icon.menu_items[0].set_sensitive(True)
+            self.icon.menu_items[1].set_sensitive(True)
             self.reconnect()
 
     def reconnect(self):
-        self.icon.after_cancel(self.check_id)
+        self.after_cancel(self.check_id)
         self.nb_unread = {box: 0 for box in self.info_conn}
         for box in self.boxes:
             self.logout(box, True, True)
-        self.check_id = self.icon.after(20000, self.launch_check, False)
+        self.check_id = self.after(20000, self.launch_check, False)
 
     def display(self, event):
-        if self.icon.menu.entrycget(2, "label") == _("Suspend"):
+        if self.icon.menu_items[2].get_label() == _("Suspend"):
             notif = self.notif
             if not notif:
                 notif = _("Checking...")
@@ -165,9 +172,9 @@ class CheckMails(Tk):
         self.threads_connect = {}
         self.threads_reconnect = {}
         self.threads_check = {}
-        self.icon.after_cancel(self.timer_id)
-        self.icon.after_cancel(self.check_id)
-        self.icon.after_cancel(self.notif_id)
+        self.after_cancel(self.timer_id)
+        self.after_cancel(self.check_id)
+        self.after_cancel(self.notif_id)
         self.get_info_conn()
 
     def get_info_conn(self):
@@ -192,33 +199,37 @@ class CheckMails(Tk):
         if not self.info_conn:
             self.notif = _("No active mailbox")
             run(["notify-send", "-i", IMAGE2, _("No active mailbox"), _("Use the mailbox manager to configure a mailbox.")])
-        elif self.icon.menu.entrycget(2, "label") == _("Suspend"):
+        elif self.icon.menu_items[2].get_label() == _("Suspend"):
             self.notif = ""
             for box in self.info_conn:
                 self.connect(box)
-            self.icon.after_cancel(self.check_id)
+            self.after_cancel(self.check_id)
             self.check_id = self.after(20000, self.launch_check, False)
 
     def change_icon(self, nbmail):
         """Display the number of unread mails nbmail in the system tray icon."""
         nb = "%i" % nbmail
         im = Image.open(IMAGE)
+        W, H = im.size
         draw = ImageDraw.Draw(im)
         font_path = CONFIG.get("General", "font")
         try:
-            font = ImageFont.truetype(font_path, 10)
-            draw.text((6 // len(nb), 4), nb, fill=(255, 0, 0), font=font)
+            font = ImageFont.truetype(font_path, 70)
+            w, h = draw.textsize(nb, font=font)
+            draw.text(((W - w) / 2, (H - h) / 2), nb, fill=(255, 0, 0),
+                      font=font)
         except OSError:
-            draw.text((6 // len(nb), 4), nb, fill=(255, 0, 0))
+            w, h = draw.textsize(nb)
+            draw.text(((W - w) / 2, (H - h) / 2), nb, fill=(255, 0, 0))
         im.save(ICON)
-        self.img.configure(file=ICON)
+        self.icon.change_icon(ICON)
 
     def config(self):
         """Open config dialog to set times and language."""
         Config(self)
         self.time = CONFIG.getint("General", "time")
         self.timeout = CONFIG.getint("General", "timeout")
-        if self.icon.menu.entrycget(2, "label") == _("Suspend"):
+        if self.icon.menu_items[2].get_label() == _("Suspend"):
             self.check_mails(False)
 
     def manage_mailboxes(self):
@@ -296,10 +307,10 @@ class CheckMails(Tk):
                     run(["notify-send", "-i", "dialog-error", _("Error"),
                          _("No internet connection.")])
                     # cancel everything
-                    self.icon.after_cancel(self.check_id)
-                    self.icon.after_cancel(self.timer_id)
-                    self.icon.after_cancel(self.notif_id)
-                    self.icon.after_cancel(self.internet_id)
+                    self.after_cancel(self.check_id)
+                    self.after_cancel(self.timer_id)
+                    self.after_cancel(self.notif_id)
+                    self.after_cancel(self.internet_id)
                     # periodically checks if the internet connection is turned on
                     self.internet_id = self.after(self.timeout, self.test_connection)
             else:
@@ -321,7 +332,7 @@ class CheckMails(Tk):
         if internet_on():
             self.reset_conn()
         else:
-            self.internet_id = self.icon.after(self.timeout, self.test_connection)
+            self.internet_id = self.after(self.timeout, self.test_connection)
 
     def logout_mailbox(self, box, reconnect):
         """
@@ -370,8 +381,8 @@ class CheckMails(Tk):
         b = [self.threads_connect[box].isAlive() for box in self.threads_connect]
         if len(b) < len(self.info_conn) or True in b:
             logging.info("Waiting for connexion ...")
-            self.icon.after_cancel(self.check_id)
-            self.check_id = self.icon.after(20000, self.launch_check, force_notify)
+            self.after_cancel(self.check_id)
+            self.check_id = self.after(20000, self.launch_check, force_notify)
         else:
             logging.info("Launching check")
             self.check_mails(force_notify)
@@ -414,8 +425,8 @@ class CheckMails(Tk):
         display a notification even if there is no unread mail.
         """
         self.notif = _("Checking...") + "\n"
-        self.icon.after_cancel(self.timer_id)
-        self.icon.after_cancel(self.notif_id)
+        self.after_cancel(self.timer_id)
+        self.after_cancel(self.notif_id)
         for box, mail in self.boxes.items():
             if not self.threads_connect[box].isAlive() and (box not in self.threads_check or not self.threads_check[box].isAlive()):
                 self.threads_check[box] = Thread(target=self.check_mailbox,
@@ -423,8 +434,8 @@ class CheckMails(Tk):
                                                  daemon=True,
                                                  args=(box,))
                 self.threads_check[box].start()
-        self.notif_id = self.icon.after(20000, self.notify_unread_mails, force_notify)
-        self.timer_id = self.icon.after(self.time, self.check_mails, False)
+        self.notif_id = self.after(20000, self.notify_unread_mails, force_notify)
+        self.timer_id = self.after(self.time, self.check_mails, False)
 
     def notify_unread_mails(self, force_notify=True):
         """
@@ -435,7 +446,7 @@ class CheckMails(Tk):
         """
         b = [self.threads_check[box].isAlive() for box in self.threads_check]
         if len(b) < len(self.info_conn) or True in b:
-            self.notif_id = self.icon.after(20000, self.notify_unread_mails, force_notify)
+            self.notif_id = self.after(20000, self.notify_unread_mails, force_notify)
         else:
             if self.notif != _("Checking...") + "\n":
                 self.notif = self.notif[:-2].split("\n")[1]
@@ -455,6 +466,7 @@ class CheckMails(Tk):
         for box in self.info_conn:
             self.logout(box)
         try:
+            self.after_cancel(self.gtk_loop_id)
             self.destroy()
         except TclError:
             # depending on the pending processes when the app is destroyed
