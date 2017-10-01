@@ -36,6 +36,7 @@ Copyright 2007-2013 elementary LLC.
 Constants
 """
 
+from re import search
 import hashlib
 from Crypto.Cipher import AES
 from Crypto import Random
@@ -46,7 +47,6 @@ import gettext
 from subprocess import check_output, CalledProcessError
 import logging
 from logging.handlers import TimedRotatingFileHandler
-
 
 # --- paths
 PATH = os.path.dirname(__file__)
@@ -64,7 +64,7 @@ else:
     PATH_IMAGES = "/usr/share/checkmails/images"
 
 if not os.path.isdir(LOCAL_PATH):
-        os.mkdir(LOCAL_PATH)
+    os.mkdir(LOCAL_PATH)
 PATH_CONFIG = os.path.join(LOCAL_PATH, "checkmails.ini")
 LOG_PATH = os.path.join(LOCAL_PATH, "checkmails.log")
 
@@ -76,13 +76,33 @@ logging.basicConfig(level=logging.INFO,
                     handlers=[handler])
 logging.getLogger().addHandler(logging.StreamHandler())
 
+
+# --- ttf fonts
+local_path = os.path.join(os.path.expanduser("~"), ".fonts")
+try:
+    local_fonts = os.listdir(local_path)
+except FileNotFoundError:
+    local_fonts = []
+TTF_FONTS = {f.split(".")[0]: os.path.join(local_path, f)
+             for f in local_fonts if search(r".(ttf|TTF)$", f)}
+for root, dirs, files in os.walk("/usr/share/fonts"):
+    for f in files:
+        if search(r".(ttf|TTF)$", f):
+            TTF_FONTS[f.split(".")[0]] = os.path.join(root, f)
+if "LiberationSans-Bold" in TTF_FONTS:
+    default_font = "LiberationSans-Bold"
+else:
+    default_font = list(TTF_FONTS.keys())[0]
+
 # --- read config file
 CONFIG = ConfigParser()
 if os.path.exists(PATH_CONFIG):
     CONFIG.read(PATH_CONFIG)
     LANGUE = CONFIG.get("General", "language")
     if not CONFIG.has_option("General", "font"):
-        CONFIG.set("General", "font", "LiberationSans-Bold")
+        CONFIG.set("General", "font", default_font)
+    elif CONFIG.get("General", "font") not in TTF_FONTS:
+        CONFIG.set("General", "font", default_font)
     if not CONFIG.has_option("General", "check_update"):
         CONFIG.set("General", "check_update", "True")
 else:
@@ -92,7 +112,7 @@ else:
     # time in ms between to checks
     CONFIG.set("General", "time", "300000")
     CONFIG.set("General", "timeout", "60000")
-    CONFIG.set("General", "font", "LiberationSans-Bold")
+    CONFIG.set("General", "font", default_font)
     CONFIG.set("General", "check_update", "True")
     CONFIG.set("Mailboxes", "active", "")
     CONFIG.set("Mailboxes", "inactive", "")

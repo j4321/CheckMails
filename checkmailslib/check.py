@@ -205,11 +205,14 @@ class CheckMails(Tk):
         im = Image.open(IMAGE)
         draw = ImageDraw.Draw(im)
         font_path = CONFIG.get("General", "font")
+        W, H = im.size
         try:
             font = ImageFont.truetype(font_path, 10)
-            draw.text((6 // len(nb), 4), nb, fill=(255, 0, 0), font=font)
+            w, h = draw.textsize(nb, font=font)
+            draw.text(((W - w) / 2, (H - h) / 2), nb, fill=(255, 0, 0), font=font)
         except OSError:
-            draw.text((6 // len(nb), 4), nb, fill=(255, 0, 0))
+            w, h = draw.textsize(nb)
+            draw.text(((W - w) / 2, (H - h) / 2), nb, fill=(255, 0, 0))
         im.save(ICON)
         self.img.configure(file=ICON)
 
