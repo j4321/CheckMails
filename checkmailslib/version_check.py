@@ -24,10 +24,11 @@ Check for updates
 
 import re
 import logging
-from subprocess import runtry:
+try:
     from subprocess import run
 except ImportError:
-    from subprocess import call as runfrom threading import Thread
+    from subprocess import call as run
+from threading import Thread
 from urllib import request, error
 from html.parser import HTMLParser
 from webbrowser import open as webOpen

@@ -37,7 +37,7 @@ from tkinter.messagebox import showerror, askokcancel
 from tkinter.ttk import Entry, Label, Button, Style
 from PIL import Image, ImageDraw, ImageFont
 from checkmailslib.tktray import Icon
-from checkmailslib.constants import IMAGE, ICON, IMAGE2, save_config
+from checkmailslib.constants import IMAGE, ICON, IMAGE2, save_config, ICON_48
 from checkmailslib.constants import encrypt, decrypt, LOCAL_PATH, CONFIG, internet_on
 from checkmailslib.manager import Manager
 from checkmailslib.config import Config
@@ -52,7 +52,7 @@ class CheckMails(Tk):
         self.withdraw()
         logging.info('Starting checkmails')
         # icon that will show up in the taskbar for every toplevel
-        self.im_icon = PhotoImage(master=self, file=IMAGE)
+        self.im_icon = PhotoImage(master=self, file=ICON_48)
         self.iconphoto(True, self.im_icon)
         # system tray icon
         self.img = PhotoImage(file=IMAGE)
