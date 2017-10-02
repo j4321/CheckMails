@@ -41,7 +41,8 @@ class Config(Toplevel):
         style.map("TCombobox",
                   fieldbackground=[('readonly', 'white')],
                   selectbackground=[('readonly', 'white')],
-                  selectforeground=[('readonly', 'black')])
+                  selectforeground=[('readonly', 'black')],
+                  foreground=[('readonly', 'black')])
 
         # validation of the entries : only numbers are allowed
         self._validate_entry_nb = self.register(self.validate_entry_nb)
@@ -102,8 +103,7 @@ class Config(Toplevel):
         # --- Font
         self.preview_path = tempfile.mktemp(".png", "checkmails_preview")
         w = max([len(f) for f in TTF_FONTS])
-        self.fonts = list(TTF_FONTS)
-        self.fonts.sort()
+        self.fonts = sorted(TTF_FONTS)
         self.font = Combobox(frame, values=self.fonts, width=(w * 2) // 3,
                              exportselection=False, state="readonly")
         current_font = CONFIG.get("General", "font")
@@ -120,6 +120,7 @@ class Config(Toplevel):
         self.prev.grid(row=2, column=2, padx=8, pady=4)
         self.update_preview()
         self.font.bind('<<ComboboxSelected>>', self.update_preview)
+        self.font.bind_class("ComboboxListbox", '<KeyPress>', self.key_nav)
 
         # --- Ok/Cancel
         frame_button = Frame(self)
@@ -130,6 +131,7 @@ class Config(Toplevel):
                command=self.destroy).grid(row=2, column=1, padx=4, pady=4)
 
     def update_preview(self, event=None):
+        self.font.selection_clear()
         nb = "0"
         im = Image.open(IMAGE)
         draw = ImageDraw.Draw(im)
@@ -151,6 +153,19 @@ class Config(Toplevel):
         self.img_prev.configure(file=self.preview_path)
         self.prev.configure(image=self.img_prev)
         self.prev.update_idletasks()
+
+    def key_nav(self, event):
+        char = event.char.upper()
+        if char:
+            i = 0
+            n = len(self.fonts)
+            while i < n and self.fonts[i] < char:
+                i += 1
+            if i < n:
+                self.tk.eval("%s selection clear 0 end" % (event.widget))
+                self.tk.eval("%s see %i" % (event.widget, i))
+                self.tk.eval("%s selection set %i" % (event.widget, i))
+                self.tk.eval("%s activate %i" % (event.widget, i))
 
     def ok(self):
         time = float(self.time_entry.get()) * 60000

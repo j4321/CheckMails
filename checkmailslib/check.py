@@ -126,6 +126,12 @@ class CheckMails(Tk):
         if CONFIG.getboolean("General", "check_update"):
             UpdateChecker(self)
 
+        # replace Ctrl+A binding by select all for all entries
+        self.bind_class("TEntry", "<Control-a>", self.select_all_entry)
+
+    def select_all_entry(self, event):
+        event.widget.selection_range(0, "end")
+
     def report_callback_exception(self, *args):
         """Log exceptions."""
         err = "".join(traceback.format_exception(*args))
@@ -450,8 +456,11 @@ class CheckMails(Tk):
             self.notif_id = self.after(20000, self.notify_unread_mails, force_notify)
         else:
             if self.notif != _("Checking...") + "\n":
-                self.notif = self.notif[:-2].split("\n")[1]
-                run(["notify-send", "-i", IMAGE2, _("Unread mails"), self.notif])
+                try:
+                    self.notif = self.notif[:-2].split("\n")[1]
+                    run(["notify-send", "-i", IMAGE2, _("Unread mails"), self.notif])
+                except IndexError:
+                    run(["notify-send", "-i", IMAGE2, _("Unread mails"), self.notif])
             elif force_notify:
                 run(["notify-send", "-i", IMAGE2, _("Unread mails"), _("No unread mail")])
                 self.notif = _("No unread mail")
