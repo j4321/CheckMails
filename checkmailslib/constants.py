@@ -232,7 +232,6 @@ def encrypt(mailbox, pwd, server, login, password, folder):
 
 # --- Images
 ICON = os.path.join(LOCAL_PATH, "icon_mail.png")
-PREV = "/tmp/checkmails_preview.png"
 if GUI == 'tk':
     IMAGE = os.path.join(PATH_IMAGES, "mail.png")
     FONTSIZE = 10

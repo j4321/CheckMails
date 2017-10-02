@@ -21,12 +21,13 @@ Configuration dialog
 """
 from re import search
 from os.path import expanduser, join
-from os import listdir
-from checkmailslib.constants import CONFIG, save_config, IMAGE, PREV, TTF_FONTS, TOOLKITS, FONTSIZE
+from os import listdir, remove
+from checkmailslib.constants import CONFIG, save_config, IMAGE, TTF_FONTS, TOOLKITS, FONTSIZE
 from PIL import Image, ImageDraw, ImageFont
 from tkinter import Toplevel, Menu, StringVar, PhotoImage
 from tkinter.messagebox import showinfo
 from tkinter.ttk import Label, Button, Entry, Menubutton, Frame, Style, Combobox
+import tempfile
 
 
 class Config(Toplevel):
@@ -84,13 +85,13 @@ class Config(Toplevel):
                                   variable=self.lang, command=self.translate)
         # --- gui toolkit
         Label(frame,
-              text=_("GUI Toolkit for the system tray icon")).grid(row=0, column=0,
+              text=_("GUI Toolkit for the system tray icon")).grid(row=1, column=0,
                                                                    padx=8, pady=4,
                                                                    sticky="e")
         self.gui = StringVar(self, CONFIG.get("General", "trayicon").capitalize())
         menu_gui = Menu(frame, tearoff=False)
         Menubutton(frame, menu=menu_gui, width=9,
-                   textvariable=self.gui).grid(row=0, column=1,
+                   textvariable=self.gui).grid(row=1, column=1,
                                                padx=8, pady=4, sticky="w")
         for toolkit, b in TOOLKITS.items():
             if b:
@@ -99,6 +100,7 @@ class Config(Toplevel):
                                          variable=self.gui,
                                          command=self.change_gui)
         # --- Font
+        self.preview_path = tempfile.mktemp(".png", "checkmails_preview")
         w = max([len(f) for f in TTF_FONTS])
         self.fonts = list(TTF_FONTS)
         self.fonts.sort()
@@ -111,11 +113,11 @@ class Config(Toplevel):
             i = 0
         self.font.current(i)
         self.img_prev = PhotoImage(master=self, file=IMAGE)
-        Label(frame, text=_("Font")).grid(row=1, column=0,
+        Label(frame, text=_("Font")).grid(row=2, column=0,
                                           padx=8, pady=4, sticky="e")
-        self.font.grid(row=1, column=1, padx=8, pady=4, sticky="w")
+        self.font.grid(row=2, column=1, padx=8, pady=4, sticky="w")
         self.prev = Label(frame, image=self.img_prev)
-        self.prev.grid(row=1, column=2, padx=8, pady=4)
+        self.prev.grid(row=2, column=2, padx=8, pady=4)
         self.update_preview()
         self.font.bind('<<ComboboxSelected>>', self.update_preview)
 
@@ -142,8 +144,8 @@ class Config(Toplevel):
         except OSError:
             w, h = draw.textsize(nb)
             draw.text(((W - w) / 2, (H - h) / 2), nb, fill=(255, 0, 0))
-        im.save(PREV)
-        self.img_prev.configure(file=PREV)
+        im.resize((48, 48), Image.ANTIALIAS).save(self.preview_path)
+        self.img_prev.configure(file=self.preview_path)
         self.prev.configure(image=self.img_prev)
         self.prev.update_idletasks()
 
@@ -176,3 +178,7 @@ class Config(Toplevel):
         for p in parts:
             b = b and (p == "" or p.isdigit())
         return b
+
+    def destroy(self):
+        remove(self.preview_path)
+        Toplevel.destroy(self)
