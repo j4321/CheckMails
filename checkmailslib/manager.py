@@ -146,6 +146,7 @@ class Manager(Toplevel):
 
         top = Toplevel(self)
         top.title(_("Login information"))
+        top.transient(self)
         top.resizable(False, False)
         name_entry = Entry(top, justify='center', width=32)
         server_entry = Entry(top, justify='center', width=32)

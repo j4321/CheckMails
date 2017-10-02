@@ -112,8 +112,8 @@ class UpdateChecker(Toplevel):
             self.b1.focus_set()
         else:
             if self.notify:
-                run(["notify-send", "-i", IMAGE2, _("Update"), _("Checkmails is up-to-date.")])
-            logging.info("Checkmails is up-to-date")
+                run(["notify-send", "-i", IMAGE2, _("Update"), _("CheckMails is up-to-date.")])
+            logging.info("CheckMails is up-to-date")
             self.destroy()
 
     def quit(self):

@@ -144,7 +144,10 @@ class Config(Toplevel):
         except OSError:
             w, h = draw.textsize(nb)
             draw.text(((W - w) / 2, (H - h) / 2), nb, fill=(255, 0, 0))
-        im.resize((48, 48), Image.ANTIALIAS).save(self.preview_path)
+        if W > 48:
+            im.resize((48, 48), Image.ANTIALIAS).save(self.preview_path)
+        else:
+            im.save(self.preview_path)
         self.img_prev.configure(file=self.preview_path)
         self.prev.configure(image=self.img_prev)
         self.prev.update_idletasks()
