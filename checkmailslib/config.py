@@ -22,7 +22,7 @@ Configuration dialog
 from re import search
 from os.path import expanduser, join
 from os import listdir
-from checkmailslib.constants import CONFIG, save_config, IMAGE, PREV, TTF_FONTS
+from checkmailslib.constants import CONFIG, save_config, IMAGE, PREV, TTF_FONTS, TOOLKITS, FONTSIZE
 from PIL import Image, ImageDraw, ImageFont
 from tkinter import Toplevel, Menu, StringVar, PhotoImage
 from tkinter.messagebox import showinfo
@@ -82,6 +82,22 @@ class Config(Toplevel):
                                   variable=self.lang, command=self.translate)
         menu_lang.add_radiobutton(label="Français", value="Français",
                                   variable=self.lang, command=self.translate)
+        # --- gui toolkit
+        Label(frame,
+              text=_("GUI Toolkit for the system tray icon")).grid(row=0, column=0,
+                                                                   padx=8, pady=4,
+                                                                   sticky="e")
+        self.gui = StringVar(self, CONFIG.get("General", "trayicon").capitalize())
+        menu_gui = Menu(frame, tearoff=False)
+        Menubutton(frame, menu=menu_gui, width=9,
+                   textvariable=self.gui).grid(row=0, column=1,
+                                               padx=8, pady=4, sticky="w")
+        for toolkit, b in TOOLKITS.items():
+            if b:
+                menu_gui.add_radiobutton(label=toolkit.capitalize(),
+                                         value=toolkit.capitalize(),
+                                         variable=self.gui,
+                                         command=self.change_gui)
         # --- Font
         w = max([len(f) for f in TTF_FONTS])
         self.fonts = list(TTF_FONTS)
@@ -119,7 +135,7 @@ class Config(Toplevel):
         font_path = TTF_FONTS[font_name]
         W, H = im.size
         try:
-            font = ImageFont.truetype(font_path, 70)
+            font = ImageFont.truetype(font_path, FONTSIZE)
             w, h = draw.textsize(nb, font=font)
             draw.text(((W - w) / 2, (H - h) / 2), nb, fill=(255, 0, 0),
                       font=font)
@@ -138,12 +154,18 @@ class Config(Toplevel):
         CONFIG.set("General", "timeout", "%i" % timeout)
         CONFIG.set("General", "language", self.lang.get().lower()[:2])
         CONFIG.set("General", "font", self.font.get())
+        CONFIG.set("General", "trayicon", self.gui.get().lower())
         save_config()
         self.destroy()
 
     def translate(self):
         showinfo("Information",
                  _("The language setting will take effect after restarting the application"),
+                 parent=self)
+
+    def change_gui(self):
+        showinfo("Information",
+                 _("The GUI Toolkit setting will take effect after restarting the application"),
                  parent=self)
 
     @staticmethod

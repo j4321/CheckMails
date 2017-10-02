@@ -12,14 +12,6 @@ for each mailbox is stored in an encrypted file using a master password.
 CheckMails is designed for Linux. It is written in Python 3 and relies upon
 Tk GUI toolkit.
 
-Warning
--------
-
-CheckMails is a system tray unread mail checker, so it does not work on 
-desktop environments with no system tray (like Unity). Furthermore, it relies
-on tktray which is an old library, so some desktop environment system trays
-are not fully compatible with it (e.g. in KDE/plasma).
-
 
 Install
 -------
@@ -31,9 +23,9 @@ Install
 - Ubuntu
 
     CheckMails is available in the PPA `ppa:j-4321-i/ppa`.
-    
+
     ::
-        
+
         $ sudo add-apt-repository ppa:j-4321-i/ppa
         $ sudo apt-get update
         $ sudo apt-get install checkmails
@@ -65,10 +57,15 @@ it from the command line with `checkmails`. In this last case, you will see
 the messages printed every time a process is lauched or finished and when
 an error is encountered. Therefore you can check that everything works fine.
 
+Troubleshooting
+---------------
 
-If there is a black border around the system tray icon, you can try to
-restart the panel (e.g. xfce4-panel), it should disappear (at least in xfce).
+Several gui toolkits are available to display the system tray icon, so if the
+icon does not behave properly, try to change toolkit, they are not all fully
+compatible with every desktop environment.
 
+If there is a problem with the font of the number of unread mails, try to change
+the font from the settings.
 
 If you encounter bugs or if you have suggestions, please open an issue on
 `GitHub <https://github.com/j4321/CheckMails/issues>`__ or write me an email

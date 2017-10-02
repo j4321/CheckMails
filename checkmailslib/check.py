@@ -36,8 +36,8 @@ from tkinter import Tk, PhotoImage, Toplevel, TclError
 from tkinter.messagebox import showerror, askokcancel
 from tkinter.ttk import Entry, Label, Button, Style
 from PIL import Image, ImageDraw, ImageFont
-from checkmailslib.trayicon import TrayIcon, gtk_loop
-from checkmailslib.constants import IMAGE, ICON, IMAGE2, save_config
+from checkmailslib.trayicon import TrayIcon
+from checkmailslib.constants import IMAGE, ICON, IMAGE2, save_config, FONTSIZE
 from checkmailslib.constants import encrypt, decrypt, LOCAL_PATH, CONFIG, internet_on, TTF_FONTS
 from checkmailslib.manager import Manager
 from checkmailslib.config import Config
@@ -54,10 +54,9 @@ class CheckMails(Tk):
         # icon that will show up in the taskbar for every toplevel
         self.im_icon = PhotoImage(master=self, file=IMAGE)
         self.iconphoto(True, self.im_icon)
-        # system tray icon
-#        self.img = PhotoImage(file=IMAGE)
 
-        self.icon = TrayIcon("checkmails", IMAGE)
+        # system tray icon
+        self.icon = TrayIcon(IMAGE)
         self.icon.add_menu_item(label=_("Details"), command=self.display)
         self.icon.add_menu_item(label=_("Check"), command=self.check_mails)
         self.icon.add_menu_item(label=_("Reconnect"),
@@ -79,7 +78,8 @@ class CheckMails(Tk):
                                    command=lambda: About(self))
         self.icon.add_menu_separator()
         self.icon.add_menu_item(label=_("Quit"), command=self.quit)
-        gtk_loop(self)
+        self.icon.loop(self)
+        self.icon.bind_left_click(self.display)
 
         self.style = Style(self)
         self.style.theme_use('clam')
@@ -133,19 +133,19 @@ class CheckMails(Tk):
 
     def start_stop(self):
         """Suspend checks."""
-        if self.icon.menu_items[3].get_label() == _("Suspend"):
+        if self.icon.get_item_label(3) == _("Suspend"):
             self.after_cancel(self.check_id)
             self.after_cancel(self.timer_id)
             self.after_cancel(self.notif_id)
             self.after_cancel(self.internet_id)
             self.icon.change_icon(IMAGE, "checkmails suspended")
-            self.icon.menu_items[3].set_label(_("Restart"))
-            self.icon.menu_items[1].set_sensitive(False)
-            self.icon.menu_items[2].set_sensitive(False)
+            self.icon.set_item_label(3, _("Restart"))
+            self.icon.disable_item(1)
+            self.icon.disable_item(2)
         else:
-            self.icon.menu_items[3].set_label(_("Suspend"))
-            self.icon.menu_items[1].set_sensitive(True)
-            self.icon.menu_items[2].set_sensitive(True)
+            self.icon.set_item_label(3, _("Suspend"))
+            self.icon.enable_item(1)
+            self.icon.enable_item(2)
             self.reconnect()
 
     def reconnect(self):
@@ -156,7 +156,7 @@ class CheckMails(Tk):
         self.check_id = self.after(20000, self.launch_check, False)
 
     def display(self):
-        if self.icon.menu_items[3].get_label() == _("Suspend"):
+        if self.icon.get_item_label(3) == _("Suspend"):
             notif = self.notif
             if not notif:
                 notif = _("Checking...")
@@ -200,7 +200,7 @@ class CheckMails(Tk):
         if not self.info_conn:
             self.notif = _("No active mailbox")
             run(["notify-send", "-i", IMAGE2, _("No active mailbox"), _("Use the mailbox manager to configure a mailbox.")])
-        elif self.icon.menu_items[3].get_label() == _("Suspend"):
+        elif self.icon.get_item_label(3) == _("Suspend"):
             self.notif = ""
             for box in self.info_conn:
                 self.connect(box)
@@ -215,7 +215,7 @@ class CheckMails(Tk):
         draw = ImageDraw.Draw(im)
         font_path = TTF_FONTS[CONFIG.get("General", "font")]
         try:
-            font = ImageFont.truetype(font_path, 70)
+            font = ImageFont.truetype(font_path, FONTSIZE)
             w, h = draw.textsize(nb, font=font)
             draw.text(((W - w) / 2, (H - h) / 2), nb, fill=(255, 0, 0),
                       font=font)
@@ -230,7 +230,7 @@ class CheckMails(Tk):
         Config(self)
         self.time = CONFIG.getint("General", "time")
         self.timeout = CONFIG.getint("General", "timeout")
-        if self.icon.menu_items[3].get_label() == _("Suspend"):
+        if self.icon.get_item_label(3) == _("Suspend"):
             self.check_mails(False)
 
     def manage_mailboxes(self):
@@ -467,7 +467,7 @@ class CheckMails(Tk):
         for box in self.info_conn:
             self.logout(box)
         try:
-            self.after_cancel(self.gtk_loop_id)
+            self.after_cancel(self.loop_id)
             self.destroy()
         except TclError:
             # depending on the pending processes when the app is destroyed
