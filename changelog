@@ -7,7 +7,9 @@ Changelog
 
 - Version 1.2.0
     * Fix font settings
-    * Add support for several system tray icon gui toolkits
+    * Add support for several system tray icon gui toolkits:
+      increase the number of compatible desktop environments
+    * Improve style consistency
 
 - Version 1.1.5
     * Add log file ~/.checkmails/checkmails.log
