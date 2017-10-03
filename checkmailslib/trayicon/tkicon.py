@@ -14,24 +14,22 @@ CheckMails is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-Python wrapper for Tktray.
+System tray icon using Tktray.
 
 Tktray is an extension that is able to create system tray icons.
 It follows http://www.freedesktop.org specifications when looking up the
-system tray manager. This protocol is supported by modern versions of
-KDE and Gnome panels, and by some other panel-like application.
+system tray manager.
 """
 
 import tkinter
 
 
-class Icon(tkinter.BaseWidget, tkinter.Wm):
-    def __init__(self, master=None, cnf={}, **kw):
+class TrayIcon(tkinter.BaseWidget, tkinter.Wm):
+    def __init__(self, icon, master=None, cnf={}, **kw):
         '''
             Create a new icon for the system tray. The application managing the
             system tray is notified about the new icon. It normally results in the
@@ -53,12 +51,10 @@ class Icon(tkinter.BaseWidget, tkinter.Wm):
                         icon window, not to a user-visible widget, so don't rely on it
                         to set widget defaults from an option database: the standard
                         "TrayIcon" class name is used for it.
-
                 docked  boolean indicating whether the real icon window should be
                         embedded into a tray when it exists. Think of it as a heavier
                         version of -visible option: there is a guarantee that no place
                         for icon will be reserved on any tray.
-
                 image   image to show in the system tray. Since tktray 1.3, image type
                         "photo" is not mandatory anymore. Icon will be automatically
                         redrawn on any image modifications. For Tk, deleting an image
@@ -68,10 +64,8 @@ class Icon(tkinter.BaseWidget, tkinter.Wm):
                         example of events triggering redisplay. Requested size for icon
                         is set according to the image's width and height, but obeying
                         (or disobeying) this request is left for the tray.
-
                 shape   used to put a nonrectangular shape on an icon window. Ignored
                         for compatibility.
-
                 visible boolean value indicating whether the icon must be visible.
                         The system tray manager continues to manage the icon whether
                         it is visible or not. Thus when invisible icon becomes visible,
@@ -88,7 +82,6 @@ class Icon(tkinter.BaseWidget, tkinter.Wm):
                         it. Tktray also blocks mouse event forwarding for invisible
                         icons, so you may be confident that no<Button> bindings will
                         be invoked at this time.
-
             WINDOW MANAGEMENT
                 Current implementation of tktray is designed to present an interface
                 of a usual toplevel window, but there are some important differences
@@ -103,7 +96,6 @@ class Icon(tkinter.BaseWidget, tkinter.Wm):
                 it can't be used any more as a parent for other widgets, showing them
                 instead of an image. A temporal inner window, however, may contain
                 widgets.
-
                 This version (1.3.9) introduces three virtual events: <<IconCreate>>
                 <<IconConfigure>> and <<IconDestroy>>. <<IconCreate>> is generated
                 when docking is requesting for an icon. <<IconConfigure>> is generated
@@ -118,6 +110,9 @@ class Icon(tkinter.BaseWidget, tkinter.Wm):
                     tkinter._default_root = tkinter.Tk()
                 master = tkinter._default_root
         self.TktrayVersion = master.tk.call('package', 'require', 'tktray')
+
+        self.icon = tkinter.PhotoImage(master=master, file=icon)
+        kw['image'] = self.icon
 
         # stolen from tkinter.Toplevel
         if kw:
@@ -160,3 +155,32 @@ class Icon(tkinter.BaseWidget, tkinter.Wm):
         if x < 5:
             x = 5
         self.menu.tk_popup(x, y)
+
+    def add_menu_separator(self):
+        self.menu.add_separator()
+
+    def add_menu_item(self, label="", command=None):
+        self.menu.add_command(label=label, command=command)
+
+    def change_icon(self, icon, desc):
+        self.icon.configure(file=icon)
+        self.update()
+
+    def loop(self, tk_window):
+        # no need to update since it is part of the tk mainloop
+        tk_window.loop_id = ""
+
+    def get_item_label(self, item):
+        return self.menu.entrycget(item, 'label')
+
+    def set_item_label(self, item, label):
+        self.menu.entryconfigure(item, label=label)
+
+    def disable_item(self, item):
+        self.menu.entryconfigure(item, state='disabled')
+
+    def enable_item(self, item):
+        self.menu.entryconfigure(item, state='normal')
+
+    def bind_left_click(self, command):
+        self.bind('<1>', lambda e: command())

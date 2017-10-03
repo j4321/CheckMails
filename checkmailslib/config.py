@@ -21,12 +21,13 @@ Configuration dialog
 """
 from re import search
 from os.path import expanduser, join
-from os import listdir, walk
-from checkmailslib.constants import CONFIG, save_config, IMAGE, PREV, TTF_FONTS
+from os import listdir, remove
+from checkmailslib.constants import CONFIG, save_config, IMAGE, TTF_FONTS, TOOLKITS, FONTSIZE
 from PIL import Image, ImageDraw, ImageFont
 from tkinter import Toplevel, Menu, StringVar, PhotoImage
 from tkinter.messagebox import showinfo
 from tkinter.ttk import Label, Button, Entry, Menubutton, Frame, Style, Combobox
+import tempfile
 
 
 class Config(Toplevel):
@@ -40,7 +41,8 @@ class Config(Toplevel):
         style.map("TCombobox",
                   fieldbackground=[('readonly', 'white')],
                   selectbackground=[('readonly', 'white')],
-                  selectforeground=[('readonly', 'black')])
+                  selectforeground=[('readonly', 'black')],
+                  foreground=[('readonly', 'black')])
 
         # validation of the entries : only numbers are allowed
         self._validate_entry_nb = self.register(self.validate_entry_nb)
@@ -82,10 +84,26 @@ class Config(Toplevel):
                                   variable=self.lang, command=self.translate)
         menu_lang.add_radiobutton(label="Français", value="Français",
                                   variable=self.lang, command=self.translate)
+        # --- gui toolkit
+        Label(frame,
+              text=_("GUI Toolkit for the system tray icon")).grid(row=1, column=0,
+                                                                   padx=8, pady=4,
+                                                                   sticky="e")
+        self.gui = StringVar(self, CONFIG.get("General", "trayicon").capitalize())
+        menu_gui = Menu(frame, tearoff=False)
+        Menubutton(frame, menu=menu_gui, width=9,
+                   textvariable=self.gui).grid(row=1, column=1,
+                                               padx=8, pady=4, sticky="w")
+        for toolkit, b in TOOLKITS.items():
+            if b:
+                menu_gui.add_radiobutton(label=toolkit.capitalize(),
+                                         value=toolkit.capitalize(),
+                                         variable=self.gui,
+                                         command=self.change_gui)
         # --- Font
+        self.preview_path = tempfile.mktemp(".png", "checkmails_preview")
         w = max([len(f) for f in TTF_FONTS])
-        self.fonts = list(TTF_FONTS)
-        self.fonts.sort()
+        self.fonts = sorted(TTF_FONTS)
         self.font = Combobox(frame, values=self.fonts, width=(w * 2) // 3,
                              exportselection=False, state="readonly")
         current_font = CONFIG.get("General", "font")
@@ -95,13 +113,14 @@ class Config(Toplevel):
             i = 0
         self.font.current(i)
         self.img_prev = PhotoImage(master=self, file=IMAGE)
-        Label(frame, text=_("Font")).grid(row=1, column=0,
+        Label(frame, text=_("Font")).grid(row=2, column=0,
                                           padx=8, pady=4, sticky="e")
-        self.font.grid(row=1, column=1, padx=8, pady=4, sticky="w")
+        self.font.grid(row=2, column=1, padx=8, pady=4, sticky="w")
         self.prev = Label(frame, image=self.img_prev)
-        self.prev.grid(row=1, column=2, padx=8, pady=4)
+        self.prev.grid(row=2, column=2, padx=8, pady=4)
         self.update_preview()
         self.font.bind('<<ComboboxSelected>>', self.update_preview)
+        self.font.bind_class("ComboboxListbox", '<KeyPress>', self.key_nav)
 
         # --- Ok/Cancel
         frame_button = Frame(self)
@@ -112,6 +131,7 @@ class Config(Toplevel):
                command=self.destroy).grid(row=2, column=1, padx=4, pady=4)
 
     def update_preview(self, event=None):
+        self.font.selection_clear()
         nb = "0"
         im = Image.open(IMAGE)
         draw = ImageDraw.Draw(im)
@@ -119,16 +139,33 @@ class Config(Toplevel):
         font_path = TTF_FONTS[font_name]
         W, H = im.size
         try:
-            font = ImageFont.truetype(font_path, 10)
+            font = ImageFont.truetype(font_path, FONTSIZE)
             w, h = draw.textsize(nb, font=font)
-            draw.text(((W - w) / 2, (H - h) / 2), nb, fill=(255, 0, 0), font=font)
+            draw.text(((W - w) / 2, (H - h) / 2), nb, fill=(255, 0, 0),
+                      font=font)
         except OSError:
             w, h = draw.textsize(nb)
             draw.text(((W - w) / 2, (H - h) / 2), nb, fill=(255, 0, 0))
-        im.save(PREV)
-        self.img_prev.configure(file=PREV)
+        if W > 48:
+            im.resize((48, 48), Image.ANTIALIAS).save(self.preview_path)
+        else:
+            im.save(self.preview_path)
+        self.img_prev.configure(file=self.preview_path)
         self.prev.configure(image=self.img_prev)
         self.prev.update_idletasks()
+
+    def key_nav(self, event):
+        char = event.char.upper()
+        if char:
+            i = 0
+            n = len(self.fonts)
+            while i < n and self.fonts[i] < char:
+                i += 1
+            if i < n:
+                self.tk.eval("%s selection clear 0 end" % (event.widget))
+                self.tk.eval("%s see %i" % (event.widget, i))
+                self.tk.eval("%s selection set %i" % (event.widget, i))
+                self.tk.eval("%s activate %i" % (event.widget, i))
 
     def ok(self):
         time = float(self.time_entry.get()) * 60000
@@ -137,12 +174,18 @@ class Config(Toplevel):
         CONFIG.set("General", "timeout", "%i" % timeout)
         CONFIG.set("General", "language", self.lang.get().lower()[:2])
         CONFIG.set("General", "font", self.font.get())
+        CONFIG.set("General", "trayicon", self.gui.get().lower())
         save_config()
         self.destroy()
 
     def translate(self):
         showinfo("Information",
                  _("The language setting will take effect after restarting the application"),
+                 parent=self)
+
+    def change_gui(self):
+        showinfo("Information",
+                 _("The GUI Toolkit setting will take effect after restarting the application"),
                  parent=self)
 
     @staticmethod
@@ -153,3 +196,7 @@ class Config(Toplevel):
         for p in parts:
             b = b and (p == "" or p.isdigit())
         return b
+
+    def destroy(self):
+        remove(self.preview_path)
+        Toplevel.destroy(self)

@@ -1,8 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+#! /usr/bin/python3
+# -*- coding:Utf-8 -*-
 """
 CheckMails - System tray unread mail checker
-Copyright 2016-2017 Juliette Monsel <j_4321@protonmail.com>
+Copyright 2016 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -13,11 +13,19 @@ CheckMails is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Version
+
+System tray icon.
 """
 
-__version__ = "1.2.0"
+
+from checkmailslib.constants import GUI
+
+if GUI == 'gtk':
+    from checkmailslib.trayicon.gtkicon import TrayIcon
+elif GUI == 'qt':
+    from checkmailslib.trayicon.qticon import TrayIcon
+else:
+    from checkmailslib.trayicon.tkicon import TrayIcon

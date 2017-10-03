@@ -36,6 +36,7 @@ Copyright 2007-2013 elementary LLC.
 Constants
 """
 
+
 from re import search
 import hashlib
 from Crypto.Cipher import AES
@@ -47,6 +48,8 @@ import gettext
 from subprocess import check_output, CalledProcessError
 import logging
 from logging.handlers import TimedRotatingFileHandler
+import warnings
+
 
 # --- paths
 PATH = os.path.dirname(__file__)
@@ -67,6 +70,7 @@ if not os.path.isdir(LOCAL_PATH):
     os.mkdir(LOCAL_PATH)
 PATH_CONFIG = os.path.join(LOCAL_PATH, "checkmails.ini")
 LOG_PATH = os.path.join(LOCAL_PATH, "checkmails.log")
+
 
 # --- log
 handler = TimedRotatingFileHandler(LOG_PATH, when='midnight',
@@ -94,6 +98,7 @@ if "LiberationSans-Bold" in TTF_FONTS:
 else:
     default_font = list(TTF_FONTS.keys())[0]
 
+
 # --- read config file
 CONFIG = ConfigParser()
 if os.path.exists(PATH_CONFIG):
@@ -105,6 +110,8 @@ if os.path.exists(PATH_CONFIG):
         CONFIG.set("General", "font", default_font)
     if not CONFIG.has_option("General", "check_update"):
         CONFIG.set("General", "check_update", "True")
+    if not CONFIG.has_option("General", "trayicon"):
+        CONFIG.set("General", "trayicon", "")
 else:
     LANGUE = ""
     CONFIG.add_section("General")
@@ -116,12 +123,72 @@ else:
     CONFIG.set("General", "check_update", "True")
     CONFIG.set("Mailboxes", "active", "")
     CONFIG.set("Mailboxes", "inactive", "")
+    CONFIG.set("General", "trayicon", "")
 
 
 def save_config():
     """Save configuration to config file."""
     with open(PATH_CONFIG, 'w') as fichier:
         CONFIG.write(fichier)
+
+
+# --- system tray icon
+def get_available_gui_toolkits():
+    """Check which gui toolkits are available to create a system tray icon."""
+    toolkits = {'gtk': True, 'qt': True, 'tk': True}
+    b = False
+    try:
+        import gi
+        b = True
+    except ImportError:
+        toolkits['gtk'] = False
+
+    try:
+        import PyQt5
+        b = True
+    except ImportError:
+        try:
+            import PyQt4
+            b = True
+        except ImportError:
+            try:
+                import PySide
+                b = True
+            except ImportError:
+                toolkits['qt'] = False
+
+    import tkinter
+    root = tkinter.Tk()
+    try:
+        root.tk.call('package', 'require', 'tktray')
+        b = True
+    except tkinter.TclError:
+        toolkits['tk'] = False
+    root.destroy()
+    if not b:
+        raise ImportError("No GUI toolkits available to create the system tray icon.")
+    return toolkits
+
+
+TOOLKITS = get_available_gui_toolkits()
+GUI = CONFIG.get("General", "trayicon").lower()
+
+if not TOOLKITS.get(GUI):
+    DESKTOP = os.environ.get('XDG_CURRENT_DESKTOP')
+    if DESKTOP == 'KDE':
+        if TOOLKITS['qt']:
+            GUI = 'qt'
+        else:
+            warnings.warn("No version of PyQt was found, falling back to another GUI toolkits so the system tray icon might not behave properly in KDE.")
+            GUI = 'gtk' if TOOLKITS['gtk'] else 'tk'
+    else:
+        if TOOLKITS['gtk']:
+            GUI = 'gtk'
+        elif TOOLKITS['qt']:
+            GUI = 'qt'
+        else:
+            GUI = 'tk'
+    CONFIG.set("General", "trayicon", GUI)
 
 
 # --- Translation
@@ -170,9 +237,14 @@ def encrypt(mailbox, pwd, server, login, password, folder):
 
 # --- Images
 ICON = os.path.join(LOCAL_PATH, "icon_mail.png")
-PREV = "/tmp/checkmails_preview.png"
-IMAGE = os.path.join(PATH_IMAGES, "mail.png")
+if GUI == 'tk':
+    IMAGE = os.path.join(PATH_IMAGES, "mail.png")
+    FONTSIZE = 10
+else:
+    IMAGE = os.path.join(PATH_IMAGES, "mail128.png")
+    FONTSIZE = 70
 ICON_48 = os.path.join(PATH_IMAGES, "mail48.png")
+#ICON_128 = os.path.join(PATH_IMAGES, "mail128.png")
 IMAGE2 = os.path.join(PATH_IMAGES, "mail.svg")
 ADD = os.path.join(PATH_IMAGES, "add.png")
 DEL = os.path.join(PATH_IMAGES, "del.png")
