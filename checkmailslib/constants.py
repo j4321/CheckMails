@@ -95,8 +95,10 @@ for root, dirs, files in os.walk("/usr/share/fonts"):
             TTF_FONTS[f.split(".")[0]] = os.path.join(root, f)
 if "LiberationSans-Bold" in TTF_FONTS:
     default_font = "LiberationSans-Bold"
-else:
+elif TTF_FONTS:
     default_font = list(TTF_FONTS.keys())[0]
+else:
+    default_font = ""
 
 
 # --- read config file
