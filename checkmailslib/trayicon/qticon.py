@@ -27,7 +27,6 @@ except ImportError:
         from PyQt4.QtGui import QApplication, QSystemTrayIcon, QMenu, QAction, QIcon
     except ImportError:
         from PySide.QtGui import QApplication, QSystemTrayIcon, QMenu, QAction, QIcon
-
 import sys
 
 
@@ -76,4 +75,10 @@ class TrayIcon(QApplication):
         self.menu_items[item].setDisabled(False)
 
     def bind_left_click(self, command):
-        self.tray_icon.activated.connect(lambda *args: command())
+
+        def action(reason):
+            """Execute command only on click (not when the menu is displayed)."""
+            if reason == QSystemTrayIcon.Trigger:
+                command()
+
+        self.tray_icon.activated.connect(action)
