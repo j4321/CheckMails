@@ -26,6 +26,7 @@ setup(name = "checkmails",
       license = "GPLv3",
       url="https://sourceforge.net/projects/checkmails",
       packages = ['checkmailslib', 'checkmailslib.trayicon'],
+      package_data = {'checkmailslib' : ["packages.tcl"]},
       scripts = ["checkmails"],
       data_files = data_files,
       classifiers=[

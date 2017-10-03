@@ -159,14 +159,10 @@ def get_available_gui_toolkits():
             except ImportError:
                 toolkits['qt'] = False
 
-    import tkinter
-    root = tkinter.Tk()
-    try:
-        root.tk.call('package', 'require', 'tktray')
-        b = True
-    except tkinter.TclError:
-        toolkits['tk'] = False
-    root.destroy()
+    tcl_packages = check_output(["tclsh",
+                                 os.path.join(PATH, "packages.tcl")]).decode().strip().split()
+    toolkits['tk'] = "tktray" in tcl_packages
+    b = b or toolkits['tk']
     if not b:
         raise ImportError("No GUI toolkits available to create the system tray icon.")
     return toolkits
