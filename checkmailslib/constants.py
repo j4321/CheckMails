@@ -50,6 +50,7 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 import warnings
 
+
 # --- paths
 PATH = os.path.dirname(__file__)
 
@@ -66,9 +67,10 @@ else:
     PATH_IMAGES = "/usr/share/checkmails/images"
 
 if not os.path.isdir(LOCAL_PATH):
-        os.mkdir(LOCAL_PATH)
+    os.mkdir(LOCAL_PATH)
 PATH_CONFIG = os.path.join(LOCAL_PATH, "checkmails.ini")
 LOG_PATH = os.path.join(LOCAL_PATH, "checkmails.log")
+
 
 # --- log
 handler = TimedRotatingFileHandler(LOG_PATH, when='midnight',
@@ -77,6 +79,7 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)-15s %(levelname)s: %(message)s',
                     handlers=[handler])
 logging.getLogger().addHandler(logging.StreamHandler())
+
 
 # --- ttf fonts
 local_path = os.path.join(os.path.expanduser("~"), ".fonts")
@@ -94,6 +97,7 @@ if "LiberationSans-Bold" in TTF_FONTS:
     default_font = "LiberationSans-Bold"
 else:
     default_font = list(TTF_FONTS.keys())[0]
+
 
 # --- read config file
 CONFIG = ConfigParser()
@@ -164,6 +168,7 @@ def get_available_gui_toolkits():
     if not b:
         raise ImportError("No GUI toolkits available to create the system tray icon.")
     return toolkits
+
 
 TOOLKITS = get_available_gui_toolkits()
 GUI = CONFIG.get("General", "trayicon").lower()
