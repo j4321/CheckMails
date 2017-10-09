@@ -293,7 +293,7 @@ class CheckMails(Tk):
 #                     str(e)])
                 self.logout(box, reconnect=True)
         except gaierror as e:
-            if e.args == (-2, 'Name or service not known'):
+            if e.errno == -2:
                 # Either there is no internet connection or the IMAP server is wrong
                 if internet_on():
                     run(["notify-send", "-i", "dialog-error", _("Error"),
