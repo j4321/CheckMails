@@ -65,7 +65,7 @@ class UpdateChecker(Toplevel):
     version_parser = VersionParser()
 
     def __init__(self, master, notify=False):
-        Toplevel.__init__(self, master)
+        Toplevel.__init__(self, master, class_="CheckMails")
         logging.info('Checking for updates')
         self.title(_("Update"))
         self.withdraw()

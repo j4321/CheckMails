@@ -32,7 +32,7 @@ class Manager(Toplevel):
     """Mailbox Manager."""
     def __init__(self, master, pwd):
         """Create the mailbox manager dialog."""
-        Toplevel.__init__(self, master)
+        Toplevel.__init__(self, master, class_="CheckMails")
         self.title(_("Mailbox Manager"))
         self.minsize(200, 10)
         self.pwd = pwd
@@ -144,7 +144,7 @@ class Manager(Toplevel):
                     folder_entry.get().strip())
             top.destroy()
 
-        top = Toplevel(self)
+        top = Toplevel(self, class_="CheckMails")
         top.title(_("Login information"))
         top.transient(self)
         top.resizable(False, False)

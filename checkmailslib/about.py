@@ -33,7 +33,7 @@ class About(Toplevel):
         propos du logiciel """
     def __init__(self, master):
         """ créer le Toplevel 'À propos de CheckMails' """
-        Toplevel.__init__(self, master)
+        Toplevel.__init__(self, master, class_="CheckMails")
         self.title(_("About CheckMails"))
         self.image = PhotoImage(file=ICON_48, master=self)
         Label(self, image=self.image).grid(row=0, columnspan=2, pady=10)

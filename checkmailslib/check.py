@@ -48,7 +48,7 @@ from checkmailslib.version_check import UpdateChecker
 class CheckMails(Tk):
     """System tray app that periodically looks for new mails."""
     def __init__(self):
-        Tk.__init__(self)
+        Tk.__init__(self, className="CheckMails")
         self.withdraw()
         logging.info('Starting checkmails')
         # icon that will show up in the taskbar for every toplevel
@@ -500,7 +500,7 @@ class CheckMails(Tk):
                 showerror(_('Error'), _('Incorrect password!'))
                 logging.warning('Authentication failed')
                 getpwd.delete(0, "end")
-        top = Toplevel(self)
+        top = Toplevel(self, class_="CheckMails")
         top.title(_("Password"))
         top.resizable(False, False)
         Label(top, text=_("Enter password")).pack(padx=10, pady=(10, 4))
@@ -527,7 +527,7 @@ class CheckMails(Tk):
             else:
                 showerror(_('Error'), _('Passwords do not match!'))
 
-        top = Toplevel(self)
+        top = Toplevel(self, class_="CheckMails")
         top.iconphoto(True, self.im_icon)
         top.title(_("Set password"))
         top.resizable(False, False)
@@ -575,7 +575,7 @@ class CheckMails(Tk):
             else:
                 showerror(_('Error'), _('Incorrect password!'))
 
-        top = Toplevel(self)
+        top = Toplevel(self, class_="CheckMails")
         top.iconphoto(True, self.im_icon)
         top.resizable(False, False)
         Label(top, text=_("Old password")).pack(padx=10, pady=(10, 4))

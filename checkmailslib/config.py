@@ -34,7 +34,7 @@ class Config(Toplevel):
     """ Configuration dialog to set times and language. """
 
     def __init__(self, master):
-        Toplevel.__init__(self, master)
+        Toplevel.__init__(self, master, class_="CheckMails")
         self.title(_("Preferences"))
 
         style = Style(self)
