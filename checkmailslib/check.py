@@ -118,6 +118,7 @@ class CheckMails(Tk):
         self.timer_id = ''
         self.notif_id = ''
         self.internet_id = ''
+        self.notify_no_internet = True  # avoid multiple notification of no internet connection
         # notification displayed when clicking on the icon
         self.notif = ''
         # retrieve mailbox login information from encrypted files
@@ -155,6 +156,7 @@ class CheckMails(Tk):
             self.reconnect()
 
     def reconnect(self):
+        self.notify_no_internet = True
         self.after_cancel(self.check_id)
         self.nb_unread = {box: 0 for box in self.info_conn}
         for box in self.boxes:
@@ -311,8 +313,10 @@ class CheckMails(Tk):
                     CONFIG.set("Mailboxes", "inactive", ", ".join(inactive))
                     logging.error("Wrong IMAP server for %(mailbox)s." % {"mailbox": box})
                 else:
-                    run(["notify-send", "-i", "dialog-error", _("Error"),
-                         _("No internet connection.")])
+                    if self.notify_no_internet:
+                        run(["notify-send", "-i", "dialog-error", _("Error"),
+                             _("No internet connection.")])
+                        self.notify_no_internet = False
                     # cancel everything
                     self.after_cancel(self.check_id)
                     self.after_cancel(self.timer_id)
@@ -338,6 +342,7 @@ class CheckMails(Tk):
         """
         if internet_on():
             self.reset_conn()
+            self.notify_no_internet = True
         else:
             self.internet_id = self.after(self.timeout, self.test_connection)
 
