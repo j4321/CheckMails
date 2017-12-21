@@ -261,7 +261,7 @@ class CheckMails(Tk):
             logging.info("Connecting to %s" % box)
             serveur, loginfo, folder = self.info_conn[box]
             # reinitialize the connection if it takes too long
-            timeout_id = self.after(self.timeout, self.logout, box, False, True)
+            timeout_id = self.after(self.timeout, self.timed_out, box, False, True)
             self.boxes[box] = IMAP4_SSL(serveur)
             self.boxes[box].login(*loginfo)
             self.boxes[box].select(folder)
@@ -387,10 +387,10 @@ class CheckMails(Tk):
                                               args=(box, reconnect))
             self.threads_logout[box].start()
 
-    def timed_out(self, box):
+    def timed_out(self, box, force=False, reconnect=False):
         """Check Internet connection if check timed out."""
         if internet_on():
-            self.logout(box, True, True)
+            self.logout(box, force, reconnect)
         else:
             if self.notify_no_internet:
                 run(["notify-send", "-i", "dialog-error", _("Error"),
@@ -423,7 +423,7 @@ class CheckMails(Tk):
         """Look for unread mails in box."""
         mail = self.boxes[box]
         # reinitialize the connection if it takes too long
-        timeout_id = self.after(self.timeout, self.timed_out, box)
+        timeout_id = self.after(self.timeout, self.timed_out, box, True, True)
         logging.info("Collecting unread mails for %s" % box)
         try:
             r, messages = mail.search(None, '(UNSEEN)')
