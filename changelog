@@ -5,6 +5,11 @@ Copyright 2016 Juliette Monsel <j_4321@protonmail.com>
 Changelog
 ---------
 
+- Version 1.2.1
+    * Change wm_class to CheckMails (the windows will no longer be grouped together with tk windows)
+    * Only display the 'No Internet connection' error once
+    * Log more events (Internet connection and Suspend/Restart)
+
 - Version 1.2.0
     * Fix font settings
     * Add support for several system tray icon gui toolkits:

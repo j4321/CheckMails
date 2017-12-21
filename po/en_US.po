@@ -258,8 +258,8 @@ msgid "Wrong IMAP server for %(mailbox)s."
 msgstr "Wrong IMAP server for %(mailbox)s."
 
 #: checkmailslib/check.py:309
-msgid "No internet connection."
-msgstr "No internet connection."
+msgid "No Internet connection."
+msgstr "No Internet connection."
 
 #: checkmailslib/check.py:410
 msgid "Timed out, reconnecting"

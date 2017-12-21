@@ -260,7 +260,7 @@ msgid "Wrong IMAP server for %(mailbox)s."
 msgstr "Serveur IMAP invalide pour  %(mailbox)s."
 
 #: checkmailslib/check.py:309
-msgid "No internet connection."
+msgid "No Internet connection."
 msgstr "Pas de connexion internet."
 
 #: checkmailslib/check.py:410
