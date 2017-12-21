@@ -44,8 +44,6 @@ from checkmailslib.config import Config
 from checkmailslib.about import About
 from checkmailslib.version_check import UpdateChecker
 
-_ = lambda e: e
-
 
 class CheckMails(Tk):
     """System tray app that periodically looks for new mails."""
