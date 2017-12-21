@@ -44,6 +44,8 @@ from checkmailslib.config import Config
 from checkmailslib.about import About
 from checkmailslib.version_check import UpdateChecker
 
+_ = lambda e: e
+
 
 class CheckMails(Tk):
     """System tray app that periodically looks for new mails."""
@@ -60,22 +62,22 @@ class CheckMails(Tk):
         self.icon.add_menu_item(label=_("Details"), command=self.display)
         self.icon.add_menu_item(label=_("Check"), command=self.check_mails)
         self.icon.add_menu_item(label=_("Reconnect"),
-                                   command=self.reconnect)
+                                command=self.reconnect)
         self.icon.add_menu_item(label=_("Suspend"), command=self.start_stop)
         self.icon.add_menu_separator()
         self.icon.add_menu_item(label=_("Change password"),
-                                   command=self.change_password)
+                                command=self.change_password)
         self.icon.add_menu_item(label=_("Reset password"),
-                                   command=self.reset_password)
+                                command=self.reset_password)
         self.icon.add_menu_separator()
         self.icon.add_menu_item(label=_("Manage mailboxes"),
-                                   command=self.manage_mailboxes)
+                                command=self.manage_mailboxes)
         self.icon.add_menu_item(label=_("Preferences"), command=self.config)
         self.icon.add_menu_separator()
         self.icon.add_menu_item(label=_("Check for updates"),
-                                   command=lambda: UpdateChecker(self, True))
+                                command=lambda: UpdateChecker(self, True))
         self.icon.add_menu_item(label=_("About"),
-                                   command=lambda: About(self))
+                                command=lambda: About(self))
         self.icon.add_menu_separator()
         self.icon.add_menu_item(label=_("Quit"), command=self.quit)
         self.icon.loop(self)
@@ -118,7 +120,7 @@ class CheckMails(Tk):
         self.timer_id = ''
         self.notif_id = ''
         self.internet_id = ''
-        self.notify_no_internet = True  # avoid multiple notification of no internet connection
+        self.notify_no_internet = True  # avoid multiple notification of No Internet connection
         # notification displayed when clicking on the icon
         self.notif = ''
         # retrieve mailbox login information from encrypted files
@@ -149,11 +151,13 @@ class CheckMails(Tk):
             self.icon.set_item_label(3, _("Restart"))
             self.icon.disable_item(1)
             self.icon.disable_item(2)
+            logging.info("CheckMails suspended")
         else:
             self.icon.set_item_label(3, _("Suspend"))
             self.icon.enable_item(1)
             self.icon.enable_item(2)
             self.reconnect()
+            logging.info("CheckMails restarted")
 
     def reconnect(self):
         self.notify_no_internet = True
@@ -291,12 +295,10 @@ class CheckMails(Tk):
             else:
                 # try to reconnect
                 logging.error('%s: %s' % (box, e))
-#                run(["notify-send", "-i", "dialog-error", str(type(e)),
-#                     str(e)])
                 self.logout(box, reconnect=True)
         except gaierror as e:
             if e.errno == -2:
-                # Either there is no internet connection or the IMAP server is wrong
+                # Either there is No Internet connection or the IMAP server is wrong
                 if internet_on():
                     run(["notify-send", "-i", "dialog-error", _("Error"),
                          _("Wrong IMAP server for %(mailbox)s.") % {"mailbox": box}])
@@ -315,8 +317,9 @@ class CheckMails(Tk):
                 else:
                     if self.notify_no_internet:
                         run(["notify-send", "-i", "dialog-error", _("Error"),
-                             _("No internet connection.")])
+                             _("No Internet connection.")])
                         self.notify_no_internet = False
+                    logging.warning("No Internet connection")
                     # cancel everything
                     self.after_cancel(self.check_id)
                     self.after_cancel(self.timer_id)
@@ -342,6 +345,7 @@ class CheckMails(Tk):
         """
         if internet_on():
             self.reset_conn()
+            logging.info("Connected to Internet")
             self.notify_no_internet = True
         else:
             self.internet_id = self.after(self.timeout, self.test_connection)
@@ -385,6 +389,24 @@ class CheckMails(Tk):
                                               args=(box, reconnect))
             self.threads_logout[box].start()
 
+    def timed_out(self, box):
+        """Check Internet connection if check timed out."""
+        if internet_on():
+            self.logout(box, True, True)
+        else:
+            if self.notify_no_internet:
+                run(["notify-send", "-i", "dialog-error", _("Error"),
+                     _("No Internet connection.")])
+                self.notify_no_internet = False
+            logging.warning("No Internet connection")
+            # cancel everything
+            self.after_cancel(self.check_id)
+            self.after_cancel(self.timer_id)
+            self.after_cancel(self.notif_id)
+            self.after_cancel(self.internet_id)
+            # periodically checks if the internet connection is turned on
+            self.internet_id = self.after(self.timeout, self.test_connection)
+
     def launch_check(self, force_notify=False):
         """
         Check every 20 s if the login to all the mailboxes is done.
@@ -403,7 +425,7 @@ class CheckMails(Tk):
         """Look for unread mails in box."""
         mail = self.boxes[box]
         # reinitialize the connection if it takes too long
-        timeout_id = self.after(self.timeout, self.logout, box, True, True)
+        timeout_id = self.after(self.timeout, self.timed_out, box)
         logging.info("Collecting unread mails for %s" % box)
         try:
             r, messages = mail.search(None, '(UNSEEN)')
@@ -427,8 +449,6 @@ class CheckMails(Tk):
                 self.change_icon(nbtot)
             else:
                 logging.exception(str(type(e)))
-#                run(["notify-send", "-i", "dialog-error", _("Error"),
-#                     traceback.format_exc()])
             self.logout(box, force=True, reconnect=True)
 
     def check_mails(self, force_notify=True):
