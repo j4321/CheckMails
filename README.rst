@@ -57,7 +57,7 @@ Install
     ::
         $ sudo python3 setup.py install
 
-You can now launch it from `Menu > Utility > CheckMails`. You can launch
+You can now launch it from `Menu > Network > CheckMails`. You can launch
 it from the command line with `checkmails`. In this last case, you will see
 the messages printed every time a process is lauched or finished and when
 an error is encountered. Therefore you can check that everything works fine.
