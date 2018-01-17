@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 CheckMails - System tray unread mail checker
-Copyright 2016-2017 Juliette Monsel <j_4321@protonmail.com>
+Copyright 2016-2018 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

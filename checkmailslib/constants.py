@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 CheckMails - System tray unread mail checker
-Copyright 2016-2017 Juliette Monsel <j_4321@protonmail.com>
+Copyright 2016-2018 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@ from subprocess import check_output, CalledProcessError
 import logging
 from logging.handlers import TimedRotatingFileHandler
 import warnings
+from tkinter import TclVersion
 
 
 # --- paths
@@ -242,7 +243,6 @@ else:
     IMAGE = os.path.join(PATH_IMAGES, "mail128.png")
     FONTSIZE = 70
 ICON_48 = os.path.join(PATH_IMAGES, "mail48.png")
-#ICON_128 = os.path.join(PATH_IMAGES, "mail128.png")
 IMAGE2 = os.path.join(PATH_IMAGES, "mail.svg")
 ADD = os.path.join(PATH_IMAGES, "add.png")
 DEL = os.path.join(PATH_IMAGES, "del.png")
@@ -300,3 +300,26 @@ def internet_on():
         return True
     except CalledProcessError:
         return False
+
+
+# --- compatibility
+if TclVersion < 8.6:
+    # then tkinter cannot import PNG files directly, we need to use PIL
+    # but to create an image from a string with the data keyword, we still need
+    # the regular tkinter.PhotoImage
+    from PIL import ImageTk
+    from tkinter import PhotoImage as TkPhotoImage
+
+    class MetaPhotoImage(type):
+        def __call__(cls, *args, **kwargs):
+            if 'file' in kwargs:
+                return ImageTk.PhotoImage(*args, **kwargs)
+            else:
+                return TkPhotoImage(*args, **kwargs)
+
+    class PhotoImage(metaclass=MetaPhotoImage):
+        pass
+
+else:
+    # no need of ImageTk dependency
+    from tkinter import PhotoImage

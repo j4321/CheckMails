@@ -24,8 +24,9 @@ Tktray is an extension that is able to create system tray icons.
 It follows http://www.freedesktop.org specifications when looking up the
 system tray manager.
 """
-
+    
 import tkinter
+from checkmailslib.constants import PhotoImage
 
 
 class TrayIcon(tkinter.BaseWidget, tkinter.Wm):
@@ -111,7 +112,7 @@ class TrayIcon(tkinter.BaseWidget, tkinter.Wm):
                 master = tkinter._default_root
         self.TktrayVersion = master.tk.call('package', 'require', 'tktray')
 
-        self.icon = tkinter.PhotoImage(master=master, file=icon)
+        self.icon = PhotoImage(master=master, file=icon)
         kw['image'] = self.icon
 
         # stolen from tkinter.Toplevel
