@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 CheckMails - System tray unread mail checker
-Copyright 2016-2017 Juliette Monsel <j_4321@protonmail.com>
+Copyright 2016-2018 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,9 +22,9 @@ About dialog
 
 
 from webbrowser import open as webOpen
-from tkinter import Text, Toplevel, PhotoImage
+from tkinter import Text, Toplevel
 from tkinter.ttk import Button, Label
-from checkmailslib.constants import ICON_48
+from checkmailslib.constants import ICON_48, PhotoImage
 from checkmailslib.version import __version__
 
 
@@ -41,7 +41,7 @@ class About(Toplevel):
         Label(self,
               text=_("CheckMails %(version)s") % ({"version": __version__})).grid(row=1, columnspan=2)
         Label(self, text=_("System tray unread mail checker")).grid(row=2, columnspan=2, padx=10)
-        Label(self, text="Copyright (C) Juliette Monsel 2016-2017").grid(row=3, columnspan=2)
+        Label(self, text="Copyright (C) Juliette Monsel 2016-2018").grid(row=3, columnspan=2)
         Label(self, text="j_4321@protonmail.com").grid(row=4, columnspan=2)
         Button(self, text=_("License"), command=self._license).grid(row=5, column=0, pady=20, padx=4)
         Button(self, text=_("Close"), command=self.exit).grid(row=5, column=1, pady=20, padx=4)

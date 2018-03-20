@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 CheckMails - System tray unread mail checker
-Copyright 2016-2017 Juliette Monsel <j_4321@protonmail.com>
+Copyright 2016-2018 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,9 +22,10 @@ Configuration dialog
 from re import search
 from os.path import expanduser, join
 from os import listdir, remove
-from checkmailslib.constants import CONFIG, save_config, IMAGE, TTF_FONTS, TOOLKITS, FONTSIZE
+from checkmailslib.constants import CONFIG, save_config, IMAGE, \
+    TTF_FONTS, TOOLKITS, FONTSIZE, PhotoImage
 from PIL import Image, ImageDraw, ImageFont
-from tkinter import Toplevel, Menu, StringVar, PhotoImage
+from tkinter import Toplevel, Menu, StringVar
 from tkinter.messagebox import showinfo
 from tkinter.ttk import Label, Button, Entry, Menubutton, Frame, Style, Combobox
 import tempfile

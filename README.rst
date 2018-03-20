@@ -1,16 +1,16 @@
 CheckMails - System tray unread mail checker
 =============================================
-Copyright 2016-2017 Juliette Monsel <j_4321@protonmail.com>
+Copyright 2016-2018 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails periodically looks for unread mails and displays the total number
 of unread mails in the system tray icon. Several mailboxes can be configured.
 The number of unread mails for each mailbox is detailed in a notification
 that appears when clicking on the icon and after a check. This application
-supports only IMAP protocol with SSL encryption. The connection information
+supports only the IMAP protocol with SSL encryption. The connection information
 for each mailbox is stored in an encrypted file using a master password.
 
-CheckMails is designed for Linux. It is written in Python 3 and relies upon
-Tk GUI toolkit.
+CheckMails is designed for Linux. It is written in Python 3 and relies mostly
+upon Tk GUI toolkit.
 
 
 Install
