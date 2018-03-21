@@ -34,7 +34,7 @@ from html.parser import HTMLParser
 from webbrowser import open as webOpen
 from tkinter import Toplevel, PhotoImage
 from tkinter.ttk import Label, Button, Frame, Checkbutton
-from checkmailslib.constants import CONFIG, save_config, IM_QUESTION_DATA, IMAGE2
+from checkmailslib.constants import CONFIG, save_config, IM_QUESTION, IMAGE2
 from checkmailslib.version import __version__
 
 
@@ -76,7 +76,7 @@ class UpdateChecker(Toplevel):
 
         self.notify = notify
 
-        self.img = PhotoImage(data=IM_QUESTION_DATA, master=self)
+        self.img = PhotoImage(file=IM_QUESTION, master=self)
 
         frame = Frame(self)
         frame.grid(row=0, columnspan=2, sticky="ewsn")

@@ -27,6 +27,7 @@ import logging
 from imaplib import IMAP4_SSL, IMAP4
 from socket import gaierror
 from threading import Thread
+from queue import Queue
 import crypt
 try:
     from subprocess import run
@@ -38,10 +39,12 @@ from tkinter.ttk import Entry, Label, Button, Style
 from PIL import Image, ImageDraw, ImageFont
 from checkmailslib.trayicon import TrayIcon
 from checkmailslib.constants import IMAGE, ICON, IMAGE2, save_config, FONTSIZE,\
-    encrypt, decrypt, LOCAL_PATH, CONFIG, internet_on, TTF_FONTS, ICON_48, PhotoImage
-from checkmailslib.manager import Manager
+    encrypt, decrypt, LOCAL_PATH, CONFIG, internet_on, TTF_FONTS, ICON_48, \
+    PhotoImage
+from checkmailslib.manager import Manager, EditMailbox
 from checkmailslib.config import Config
 from checkmailslib.about import About
+from checkmailslib.messagebox import show_failed_auth_msg
 from checkmailslib.version_check import UpdateChecker
 
 
@@ -113,6 +116,7 @@ class CheckMails(Tk):
         self.threads_connect = {}
         self.threads_logout = {}
         self.threads_check = {}
+        self.login_err_queue = Queue()
         # after callbacks id
         self.check_id = ''
         self.timer_id = ''
@@ -252,6 +256,7 @@ class CheckMails(Tk):
                 self.ask_password()
         if self.pwd is not None:
             m = Manager(self, self.pwd)
+            m.grab_set()
             self.wait_window(m)
             self.reset_conn()
 
@@ -275,21 +280,8 @@ class CheckMails(Tk):
                              b'Login failed: authentication failure',
                              b'LOGIN failed']:
                 # Identification error
-                run(["notify-send", "-i", "dialog-error", _("Error"),
-                     _("Incorrect login or password for %(mailbox)s") % {"mailbox": box}])
-                # remove box from the active mailboxes
-                del(self.boxes[box])
-                active = CONFIG.get("Mailboxes", "active").split(", ")
-                inactive = CONFIG.get("Mailboxes", "inactive").split(", ")
-                while "" in active:
-                    active.remove("")
-                while "" in inactive:
-                    inactive.remove("")
-                active.remove(box)
-                inactive.append(box)
-                CONFIG.set("Mailboxes", "active", ", ".join(active))
-                CONFIG.set("Mailboxes", "inactive", ", ".join(inactive))
                 logging.error("Incorrect login or password for %(mailbox)s" % {"mailbox": box})
+                self.login_err_queue.put(box)
             else:
                 # try to reconnect
                 logging.error('%s: %s' % (box, e))
@@ -417,7 +409,36 @@ class CheckMails(Tk):
             self.check_id = self.after(20000, self.launch_check, force_notify)
         else:
             logging.info("Launching check")
-            self.check_mails(force_notify)
+            if not self.login_err_queue.empty():
+                correct = False
+                while not self.login_err_queue.empty():
+                    box = self.login_err_queue.get()
+                    action = show_failed_auth_msg(self, box)
+                    if action == 'correct':
+                        dialog = EditMailbox(self, self.pwd, box)
+                        self.wait_window(dialog)
+                        self.connect(box)
+                        correct = dialog.name or correct
+                    else:
+                        # remove box from the active mailboxes
+                        del(self.boxes[box])
+                        active = CONFIG.get("Mailboxes", "active").split(", ")
+                        inactive = CONFIG.get("Mailboxes", "inactive").split(", ")
+                        while "" in active:
+                            active.remove("")
+                        while "" in inactive:
+                            inactive.remove("")
+                        active.remove(box)
+                        inactive.append(box)
+                        CONFIG.set("Mailboxes", "active", ", ".join(active))
+                        CONFIG.set("Mailboxes", "inactive", ", ".join(inactive))
+                if correct:
+                    self.after_cancel(self.check_id)
+                    self.check_id = self.after(20000, self.launch_check, force_notify)
+                else:
+                    self.check_mails(force_notify)
+            else:
+                self.check_mails(force_notify)
 
     def check_mailbox(self, box):
         """Look for unread mails in box."""

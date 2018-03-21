@@ -190,5 +190,101 @@ class Manager(Toplevel):
                                                                   pady=4,
                                                                   padx=(10, 4))
         top.grab_set()
+        name_entry.bind("<Key-Return>", save)
+        server_entry.bind("<Key-Return>", save)
+        login_entry.bind("<Key-Return>", save)
         password_entry.bind("<Key-Return>", save)
+        folder_entry.bind("<Key-Return>", save)
         name_entry.focus_set()
+
+
+class EditMailbox(Toplevel):
+    """GUI to add or modify a mailbox login information."""
+
+    def __init__(self, master, pwd, mailbox=''):
+        Toplevel.__init__(self, class_="CheckMails")
+        self.title(_("Login information"))
+        self.resizable(False, False)
+
+        self.mailbox = mailbox
+        self.name = ''
+        self.pwd = pwd
+
+        self.name_entry = Entry(self, justify='center', width=32)
+        self.server_entry = Entry(self, justify='center', width=32)
+        self.login_entry = Entry(self, justify='center', width=32)
+        self.password_entry = Entry(self, show='*', justify='center', width=32)
+        self.folder_entry = Entry(self, justify='center', width=32)
+
+        if mailbox:
+            self.name_entry.insert(0, mailbox)
+            server, login, password, folder = decrypt(mailbox, self.pwd)
+            self.server_entry.insert(0, server)
+            self.login_entry.insert(0, login)
+            self.password_entry.insert(0, password)
+            self.folder_entry.insert(0, folder)
+        else:
+            self.name_entry.insert(0, "Mailbox name")
+            self.server_entry.insert(0, "IMAP.mailbox.com")
+            self.login_entry.insert(0, "myaddress@mailbox.com")
+            self.folder_entry.insert(0, "inbox")
+
+        Label(self, text=_("Mailbox name")).grid(row=0, column=0, sticky="e",
+                                                 pady=(10, 4), padx=(10, 1))
+        Label(self, text=_("IMAP server")).grid(row=1, column=0, sticky="e",
+                                                pady=4, padx=(10, 1))
+        Label(self, text=_("Login")).grid(row=2, column=0, sticky="e",
+                                          pady=4, padx=(10, 1))
+        Label(self, text=_("Password")).grid(row=3, column=0, sticky="e",
+                                             pady=4, padx=(10, 1))
+        Label(self, text=_("Folder to check")).grid(row=4, column=0, sticky="e",
+                                                    pady=4, padx=(10, 1))
+        self.name_entry.grid(row=0, column=1, sticky="w", pady=4, padx=(1, 10))
+        self.server_entry.grid(row=1, column=1, sticky="w", pady=4, padx=(1, 10))
+        self.login_entry.grid(row=2, column=1, sticky="w", pady=4, padx=(1, 10))
+        self.password_entry.grid(row=3, column=1, sticky="w", pady=4, padx=(1, 10))
+        self.folder_entry.grid(row=4, column=1, sticky="w", pady=4, padx=(1, 10))
+        frame = Frame(self)
+        frame.grid(row=5, columnspan=2, pady=(0, 6))
+        Button(frame, text="Ok", command=self.save).grid(row=0, column=0,
+                                                         padx=(10, 4), pady=4)
+        Button(frame, text=_("Cancel"), command=self.destroy).grid(row=0,
+                                                                   column=1,
+                                                                   pady=4,
+                                                                   padx=(10, 4))
+        self.name_entry.bind("<Key-Return>", self.save)
+        self.server_entry.bind("<Key-Return>", self.save)
+        self.login_entry.bind("<Key-Return>", self.save)
+        self.password_entry.bind("<Key-Return>", self.save)
+        self.folder_entry.bind("<Key-Return>", self.save)
+        self.name_entry.focus_set()
+        self.wait_visibility()
+        self.grab_set()
+
+    def save(self, event=None):
+        self.name = name = self.name_entry.get().strip()
+        if name != self.mailbox:
+            # change name of mailbox
+            os.remove(os.path.join(LOCAL_PATH, self.mailbox))
+
+            active = CONFIG.get("Mailboxes", "active").split(", ")
+            inactive = CONFIG.get("Mailboxes", "inactive").split(", ")
+            while "" in active:
+                active.remove("")
+            while "" in inactive:
+                inactive.remove("")
+            if self.mailbox in active:
+                active.remove(self.mailbox)
+                active.append(name)
+            elif self.mailbox in inactive:
+                inactive.remove(self.mailbox)
+                inactive.append(name)
+            CONFIG.set("Mailboxes", "active", ", ".join(active))
+            CONFIG.set("Mailboxes", "inactive", ", ".join(inactive))
+            save_config()
+
+        encrypt(name, self.pwd, self.server_entry.get().strip(),
+                self.login_entry.get().strip(), self.password_entry.get().strip(),
+                self.folder_entry.get().strip())
+
+        self.destroy()
