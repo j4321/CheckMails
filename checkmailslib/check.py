@@ -141,10 +141,22 @@ class CheckMails(Tk):
     def start_stop(self):
         """Suspend checks."""
         if self.icon.get_item_label(3) == _("Suspend"):
-            self.after_cancel(self.check_id)
-            self.after_cancel(self.timer_id)
-            self.after_cancel(self.notif_id)
-            self.after_cancel(self.internet_id)
+            try:
+                self.after_cancel(self.check_id)
+            except ValueError:
+                pass
+            try:
+                self.after_cancel(self.timer_id)
+            except ValueError:
+                pass
+            try:
+                self.after_cancel(self.notif_id)
+            except ValueError:
+                pass
+            try:
+                self.after_cancel(self.internet_id)
+            except ValueError:
+                pass
             self.icon.change_icon(IMAGE, "checkmails suspended")
             self.icon.set_item_label(3, _("Restart"))
             self.icon.disable_item(1)
@@ -159,7 +171,10 @@ class CheckMails(Tk):
 
     def reconnect(self):
         self.notify_no_internet = True
-        self.after_cancel(self.check_id)
+        try:
+            self.after_cancel(self.check_id)
+        except ValueError:
+                pass
         self.nb_unread = {box: 0 for box in self.info_conn}
         for box in self.boxes:
             self.logout(box, True, True)
@@ -183,9 +198,18 @@ class CheckMails(Tk):
         self.threads_connect = {}
         self.threads_reconnect = {}
         self.threads_check = {}
-        self.after_cancel(self.timer_id)
-        self.after_cancel(self.check_id)
-        self.after_cancel(self.notif_id)
+        try:
+            self.after_cancel(self.timer_id)
+        except ValueError:
+            pass
+        try:
+            self.after_cancel(self.check_id)
+        except ValueError:
+            pass
+        try:
+            self.after_cancel(self.notif_id)
+        except ValueError:
+            pass
         self.get_info_conn()
 
     def get_info_conn(self):
@@ -214,7 +238,10 @@ class CheckMails(Tk):
             self.notif = ""
             for box in self.info_conn:
                 self.connect(box)
-            self.after_cancel(self.check_id)
+            try:
+                self.after_cancel(self.check_id)
+            except ValueError:
+                pass
             self.check_id = self.after(20000, self.launch_check, False)
 
     def change_icon(self, nbmail):
@@ -265,11 +292,17 @@ class CheckMails(Tk):
             self.boxes[box] = IMAP4_SSL(serveur)
             self.boxes[box].login(*loginfo)
             self.boxes[box].select(folder)
-            self.after_cancel(timeout_id)
+            try:
+                self.after_cancel(timeout_id)
+            except ValueError:
+                pass
             logging.info("Connected to %s" % box)
 
         except (IMAP4.error, ConnectionResetError, TimeoutError) as e:
-            self.after_cancel(timeout_id)
+            try:
+                self.after_cancel(timeout_id)
+            except ValueError:
+                pass
             if e.args[0] in [b'Invalid login or password',
                              b'Authenticate error',
                              b'Login failed: authentication failure',
@@ -319,10 +352,22 @@ class CheckMails(Tk):
                         self.notify_no_internet = False
                     logging.warning("No Internet connection")
                     # cancel everything
-                    self.after_cancel(self.check_id)
-                    self.after_cancel(self.timer_id)
-                    self.after_cancel(self.notif_id)
-                    self.after_cancel(self.internet_id)
+                    try:
+                        self.after_cancel(self.check_id)
+                    except ValueError:
+                        pass
+                    try:
+                        self.after_cancel(self.timer_id)
+                    except ValueError:
+                        pass
+                    try:
+                        self.after_cancel(self.notif_id)
+                    except ValueError:
+                        pass
+                    try:
+                        self.after_cancel(self.internet_id)
+                    except ValueError:
+                        pass
                     # periodically checks if the internet connection is turned on
                     self.internet_id = self.after(self.timeout, self.test_connection)
             else:
@@ -398,10 +443,22 @@ class CheckMails(Tk):
                 self.notify_no_internet = False
             logging.warning("No Internet connection")
             # cancel everything
-            self.after_cancel(self.check_id)
-            self.after_cancel(self.timer_id)
-            self.after_cancel(self.notif_id)
-            self.after_cancel(self.internet_id)
+            try:
+                self.after_cancel(self.check_id)
+            except ValueError:
+                pass
+            try:
+                self.after_cancel(self.timer_id)
+            except ValueError:
+                pass
+            try:
+                self.after_cancel(self.notif_id)
+            except ValueError:
+                pass
+            try:
+                self.after_cancel(self.internet_id)
+            except ValueError:
+                pass
             # periodically checks if the internet connection is turned on
             self.internet_id = self.after(self.timeout, self.test_connection)
 
@@ -413,7 +470,10 @@ class CheckMails(Tk):
         b = [self.threads_connect[box].isAlive() for box in self.threads_connect]
         if len(b) < len(self.info_conn) or True in b:
             logging.info("Waiting for connexion ...")
-            self.after_cancel(self.check_id)
+            try:
+                self.after_cancel(self.check_id)
+            except ValueError:
+                pass
             self.check_id = self.after(20000, self.launch_check, force_notify)
         else:
             logging.info("Launching check")
@@ -427,14 +487,20 @@ class CheckMails(Tk):
         logging.info("Collecting unread mails for %s" % box)
         try:
             r, messages = mail.search(None, '(UNSEEN)')
-            self.after_cancel(timeout_id)
+            try:
+                self.after_cancel(timeout_id)
+            except ValueError:
+                pass
             self.nb_unread[box] = len(messages[0].split())
             if self.nb_unread[box] > 0:
                 self.notif += "%s : %i, " % (box, self.nb_unread[box])
             logging.info("Unread mails collected for %s" % box)
 
         except (IMAP4.error, ConnectionResetError, TimeoutError) as e:
-            self.after_cancel(timeout_id)
+            try:
+                self.after_cancel(timeout_id)
+            except ValueError:
+                pass
             if self.notif != _("Checking...") + "/n":
                 logging.error('%s: %s' % (box, e))
                 notif = self.notif
@@ -455,8 +521,14 @@ class CheckMails(Tk):
         display a notification even if there is no unread mail.
         """
         self.notif = _("Checking...") + "\n"
-        self.after_cancel(self.timer_id)
-        self.after_cancel(self.notif_id)
+        try:
+            self.after_cancel(self.timer_id)
+        except ValueError:
+            pass
+        try:
+            self.after_cancel(self.notif_id)
+        except ValueError:
+            pass
         for box, mail in self.boxes.items():
             if not self.threads_connect[box].isAlive() and (box not in self.threads_check or not self.threads_check[box].isAlive()):
                 self.threads_check[box] = Thread(target=self.check_mailbox,
@@ -501,7 +573,7 @@ class CheckMails(Tk):
         try:
             self.after_cancel(self.loop_id)
             self.destroy()
-        except TclError:
+        except (TclError, ValueError):
             # depending on the pending processes when the app is destroyed
             # a TclError: can't delete Tcl command is sometimes raised
             # I do not know how to prevent this so for now I just catch it
