@@ -231,7 +231,10 @@ def encrypt(mailbox, pwd, server, login, password, folder):
     info = [server, login, password, folder]
     with open(os.path.join(LOCAL_PATH, mailbox), 'wb') as fich:
         fich.write(iv)
-        fich.write(cipher.encrypt("\n".join(info)))
+        try:
+            fich.write(cipher.encrypt("\n".join(info)))
+        except TypeError:
+            fich.write(cipher.encrypt("\n".join(info).encode()))
 
 
 # --- Images
