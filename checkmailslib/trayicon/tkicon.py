@@ -24,7 +24,7 @@ Tktray is an extension that is able to create system tray icons.
 It follows http://www.freedesktop.org specifications when looking up the
 system tray manager.
 """
-    
+
 import tkinter
 from checkmailslib.constants import PhotoImage
 
@@ -169,7 +169,8 @@ class TrayIcon(tkinter.BaseWidget, tkinter.Wm):
 
     def loop(self, tk_window):
         # no need to update since it is part of the tk mainloop
-        tk_window.loop_id = ""
+        self.update_idletasks()
+        tk_window.loop_id = tk_window.after(10, self.loop, tk_window)
 
     def get_item_label(self, item):
         return self.menu.entrycget(item, 'label')
