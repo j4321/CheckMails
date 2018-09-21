@@ -1,6 +1,6 @@
 CheckMails - System tray unread mail checker
 =============================================
-Copyright 2016-2018 Juliette Monsel <j_4321@protonmail.com>
+|Release| |Linux| |License|
 
 CheckMails periodically looks for unread mails and displays the total number
 of unread mails in the system tray icon. Several mailboxes can be configured.
@@ -75,4 +75,13 @@ the font from the settings.
 If you encounter bugs or if you have suggestions, please open an issue on
 `GitHub <https://github.com/j4321/CheckMails/issues>`__ or write me an email
 at <j_4321@protonmail.com>.
+
+
+.. |Release| image:: https://badge.fury.io/gh/j4321%2FCheckMails.svg
+    :alt: Latest Release
+    :target: https://badge.fury.io/gh/j4321%2FCheckMails
+.. |Linux| image:: https://img.shields.io/badge/platform-Linux-blue.svg
+    :alt: Linux
+.. |License| image:: https://img.shields.io/github/license/j4321/CheckMails.svg
+    :target: https://www.gnu.org/licenses/gpl-3.0.en.html
 
