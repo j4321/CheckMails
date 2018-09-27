@@ -36,7 +36,7 @@ Install
      - Tkinter (Python wrapper for Tk)
      - libnotify and a notification server if your desktop environment does not provide one.
        (see https://wiki.archlinux.org/index.php/Desktop_notifications for more details)
-     - PyCrypto https://pypi.python.org/pypi/pycrypto
+     - PyCryptodome (https://pypi.python.org/pypi/pycryptodome) or PyCrypto (https://pypi.python.org/pypi/pycrypto)
      - Pillow https://pypi.python.org/pypi/Pillow
 
     You also need to have at least one of the following GUI toolkits for the system tray icon:
@@ -51,7 +51,7 @@ Install
 
     In Archlinux, you will need to install the following packages:
     tk, tktray (`AUR <https://aur.archlinux.org/packages/tktray>`__), libnotify and the notification server of your choice,
-    python-crypto, python-pillow
+    python-pycryptodome, python-pillow
 
     Then install the application:
     ::
@@ -79,7 +79,7 @@ at <j_4321@protonmail.com>.
 
 .. |Release| image:: https://badge.fury.io/gh/j4321%2FCheckMails.svg
     :alt: Latest Release
-    :target: https://badge.fury.io/gh/j4321%2FCheckMails
+    :target: https://github.com/j4321/CheckMails/releases
 .. |Linux| image:: https://img.shields.io/badge/platform-Linux-blue.svg
     :alt: Linux
 .. |License| image:: https://img.shields.io/github/license/j4321/CheckMails.svg
