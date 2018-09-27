@@ -51,6 +51,4 @@ that appears when clicking on the icon and after a check. This application
 supports only IMAP protocol with SSL encryption. The connection information
 for each mailbox is stored in an encrypted file using a master password.
 """,
-      requires=["tkinter", "sys", "os", "re", "locale", "gettext",
-                "crypt", "Crypto", 'hashlib', 'configparser', 'html',
-                'imaplib', 'socket', 'threading', 'subprocess'])
+      install_requires=["pycryptodome", 'Pillow'])
