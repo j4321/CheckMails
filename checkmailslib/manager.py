@@ -114,6 +114,13 @@ class Manager(Toplevel):
 
     def mailbox_info(self, mailbox=""):
         """GUI to add or modify a mailbox login information."""
+
+        def on_click(event):
+            event.widget.focus_set()
+            event.widget.selection_range(0, 'end')
+            event.widget.unbind('<1>')
+            return "break"
+
         def save(event=None):
             name = name_entry.get().strip()
             if not mailbox:
@@ -172,6 +179,11 @@ class Manager(Toplevel):
             server_entry.insert(0, "IMAP.mailbox.com")
             login_entry.insert(0, "myaddress@mailbox.com")
             folder_entry.insert(0, "inbox")
+            name_entry.bind("<1>", on_click)
+            server_entry.bind("<1>", on_click)
+            login_entry.bind("<1>", on_click)
+            password_entry.bind("<1>", on_click)
+            folder_entry.bind("<1>", on_click)
 
         Label(top, text=_("Mailbox name")).grid(row=0, column=0, sticky="e",
                                                 pady=(10, 4), padx=(10, 1))
@@ -239,6 +251,11 @@ class EditMailbox(Toplevel):
             self.server_entry.insert(0, "IMAP.mailbox.com")
             self.login_entry.insert(0, "myaddress@mailbox.com")
             self.folder_entry.insert(0, "inbox")
+            self.name_entry.bind("<1>", self.on_click)
+            self.server_entry.bind("<1>", self.on_click)
+            self.login_entry.bind("<1>", self.on_click)
+            self.password_entry.bind("<1>", self.on_click)
+            self.folder_entry.bind("<1>", self.on_click)
 
         Label(self, text=_("Mailbox name")).grid(row=0, column=0, sticky="e",
                                                  pady=(10, 4), padx=(10, 1))
@@ -271,6 +288,12 @@ class EditMailbox(Toplevel):
         self.name_entry.focus_set()
         self.wait_visibility()
         self.grab_set()
+
+    def on_click(self, event):
+        event.widget.focus_set()
+        event.widget.selection_range(0, 'end')
+        event.widget.unbind('<1>')
+        return "break"
 
     def save(self, event=None):
         self.name = name = self.name_entry.get().strip()
