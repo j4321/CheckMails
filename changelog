@@ -5,6 +5,11 @@ Copyright 2016-2018 Juliette Monsel <j_4321@protonmail.com>
 Changelog
 ---------
 
+- Version 1.2.3
+    * Add black border around icons for visibility on clear themes
+    * Update French translations
+    * Catch error when mailbox file does not exist 
+
 - Version 1.2.2
     * Add compatibility with pycryptodome as an alternative to pycrypto
     * Show dialog in case of failed authentication
