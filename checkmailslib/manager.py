@@ -101,7 +101,10 @@ class Manager(Toplevel):
 
     def del_mailbox(self, mailbox):
         """Delete the mailbox."""
-        os.remove(os.path.join(LOCAL_PATH, mailbox))
+        try:
+            os.remove(os.path.join(LOCAL_PATH, mailbox))
+        except FileNotFoundError:
+            pass
         c, l, b_edit, b_del = self.mailboxes[mailbox]
         del(self.mailboxes[mailbox])
         c.grid_forget()
@@ -156,6 +159,10 @@ class Manager(Toplevel):
         if mailbox:
             name_entry.insert(0, mailbox)
             server, login, password, folder = decrypt(mailbox, self.pwd)
+            if server is None:
+                top.destroy()
+                self.del_mailbox(mailbox)
+                return
             server_entry.insert(0, server)
             login_entry.insert(0, login)
             password_entry.insert(0, password)
@@ -202,7 +209,7 @@ class EditMailbox(Toplevel):
     """GUI to add or modify a mailbox login information."""
 
     def __init__(self, master, pwd, mailbox=''):
-        Toplevel.__init__(self, class_="CheckMails")
+        Toplevel.__init__(self, master, class_="CheckMails")
         self.title(_("Login information"))
         self.resizable(False, False)
 
@@ -219,6 +226,10 @@ class EditMailbox(Toplevel):
         if mailbox:
             self.name_entry.insert(0, mailbox)
             server, login, password, folder = decrypt(mailbox, self.pwd)
+            if server is None:
+                self.destroy()
+                master.del_mailbox(mailbox)
+                return
             self.server_entry.insert(0, server)
             self.login_entry.insert(0, login)
             self.password_entry.insert(0, password)

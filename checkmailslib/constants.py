@@ -50,7 +50,7 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 import warnings
 from tkinter import TclVersion
-
+from tkinter.messagebox import showwarning
 
 # --- paths
 PATH = os.path.dirname(__file__)
@@ -216,10 +216,27 @@ LANG.install()
 def decrypt(mailbox, pwd):
     """Returns the login and password for the mailbox that where encrypted using pwd."""
     key = hashlib.sha256(pwd.encode()).digest()
-    with open(os.path.join(LOCAL_PATH, mailbox), 'rb') as fich:
-        iv = fich.read(AES.block_size)
-        cipher = AES.new(key, AES.MODE_CFB, iv)
-        server, login, password, folder = cipher.decrypt(fich.read()).decode().split("\n")
+    try:
+        with open(os.path.join(LOCAL_PATH, mailbox), 'rb') as fich:
+            iv = fich.read(AES.block_size)
+            cipher = AES.new(key, AES.MODE_CFB, iv)
+            server, login, password, folder = cipher.decrypt(fich.read()).decode().split("\n")
+    except FileNotFoundError:
+        showwarning(_("Warning"), _("Unknown mailbox %(name)r will be removed from configuration file.") % {'name': mailbox})
+        active = CONFIG.get("Mailboxes", "active").split(", ")
+        inactive = CONFIG.get("Mailboxes", "inactive").split(", ")
+        while "" in active:
+            active.remove("")
+        while "" in inactive:
+            inactive.remove("")
+        if mailbox in active:
+            active.remove(mailbox)
+        if mailbox in inactive:
+            inactive.remove(mailbox)
+        CONFIG.set("Mailboxes", "active", ", ".join(active))
+        CONFIG.set("Mailboxes", "inactive", ", ".join(inactive))
+        save_config()
+        return None, None, None, None
     return server, login, password, folder
 
 
