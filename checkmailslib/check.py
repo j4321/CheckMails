@@ -233,7 +233,8 @@ class CheckMails(Tk):
         if self.pwd is not None:
             for box in mailboxes:
                 server, login, password, folder = decrypt(box, self.pwd)
-                self.info_conn[box] = (server, (login, password), folder)
+                if server is not None:
+                    self.info_conn[box] = (server, (login, password), folder)
 
         if not self.info_conn:
             self.notif = _("No active mailbox")
@@ -681,7 +682,8 @@ class CheckMails(Tk):
                         mailboxes.remove("")
                     for mailbox in mailboxes:
                         server, login, password, folder = decrypt(mailbox, old)
-                        encrypt(mailbox, pwd, server, login, password, folder)
+                        if server is not None:
+                           encrypt(mailbox, pwd, server, login, password, folder)
                     self.pwd = pwd
                     top.destroy()
                     logging.info('Password changed')

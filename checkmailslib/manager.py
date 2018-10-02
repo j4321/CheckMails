@@ -101,7 +101,10 @@ class Manager(Toplevel):
 
     def del_mailbox(self, mailbox):
         """Delete the mailbox."""
-        os.remove(os.path.join(LOCAL_PATH, mailbox))
+        try:
+            os.remove(os.path.join(LOCAL_PATH, mailbox))
+        except FileNotFoundError:
+            pass
         c, l, b_edit, b_del = self.mailboxes[mailbox]
         del(self.mailboxes[mailbox])
         c.grid_forget()
@@ -111,6 +114,13 @@ class Manager(Toplevel):
 
     def mailbox_info(self, mailbox=""):
         """GUI to add or modify a mailbox login information."""
+
+        def on_click(event):
+            event.widget.focus_set()
+            event.widget.selection_range(0, 'end')
+            event.widget.unbind('<1>')
+            return "break"
+
         def save(event=None):
             name = name_entry.get().strip()
             if not mailbox:
@@ -156,6 +166,10 @@ class Manager(Toplevel):
         if mailbox:
             name_entry.insert(0, mailbox)
             server, login, password, folder = decrypt(mailbox, self.pwd)
+            if server is None:
+                top.destroy()
+                self.del_mailbox(mailbox)
+                return
             server_entry.insert(0, server)
             login_entry.insert(0, login)
             password_entry.insert(0, password)
@@ -165,6 +179,11 @@ class Manager(Toplevel):
             server_entry.insert(0, "IMAP.mailbox.com")
             login_entry.insert(0, "myaddress@mailbox.com")
             folder_entry.insert(0, "inbox")
+            name_entry.bind("<1>", on_click)
+            server_entry.bind("<1>", on_click)
+            login_entry.bind("<1>", on_click)
+            password_entry.bind("<1>", on_click)
+            folder_entry.bind("<1>", on_click)
 
         Label(top, text=_("Mailbox name")).grid(row=0, column=0, sticky="e",
                                                 pady=(10, 4), padx=(10, 1))
@@ -202,7 +221,7 @@ class EditMailbox(Toplevel):
     """GUI to add or modify a mailbox login information."""
 
     def __init__(self, master, pwd, mailbox=''):
-        Toplevel.__init__(self, class_="CheckMails")
+        Toplevel.__init__(self, master, class_="CheckMails")
         self.title(_("Login information"))
         self.resizable(False, False)
 
@@ -219,6 +238,10 @@ class EditMailbox(Toplevel):
         if mailbox:
             self.name_entry.insert(0, mailbox)
             server, login, password, folder = decrypt(mailbox, self.pwd)
+            if server is None:
+                self.destroy()
+                master.del_mailbox(mailbox)
+                return
             self.server_entry.insert(0, server)
             self.login_entry.insert(0, login)
             self.password_entry.insert(0, password)
@@ -228,6 +251,11 @@ class EditMailbox(Toplevel):
             self.server_entry.insert(0, "IMAP.mailbox.com")
             self.login_entry.insert(0, "myaddress@mailbox.com")
             self.folder_entry.insert(0, "inbox")
+            self.name_entry.bind("<1>", self.on_click)
+            self.server_entry.bind("<1>", self.on_click)
+            self.login_entry.bind("<1>", self.on_click)
+            self.password_entry.bind("<1>", self.on_click)
+            self.folder_entry.bind("<1>", self.on_click)
 
         Label(self, text=_("Mailbox name")).grid(row=0, column=0, sticky="e",
                                                  pady=(10, 4), padx=(10, 1))
@@ -260,6 +288,12 @@ class EditMailbox(Toplevel):
         self.name_entry.focus_set()
         self.wait_visibility()
         self.grab_set()
+
+    def on_click(self, event):
+        event.widget.focus_set()
+        event.widget.selection_range(0, 'end')
+        event.widget.unbind('<1>')
+        return "break"
 
     def save(self, event=None):
         self.name = name = self.name_entry.get().strip()
