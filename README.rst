@@ -48,11 +48,13 @@ Install
 
 
     For instance, in Ubuntu/Debian you will need to install the following packages:
-    python3-tk, tk-tktray, libnotify and the notification server of your choice,
-    python3-crypto, python3-pil
+    python3-tk, tk-tktray (or python3-gi or python3-pyqt5), 
+    libnotify and the notification server of your choice, python3-crypto, 
+    python3-pil
 
     In Archlinux, you will need to install the following packages:
-    tk, tktray (`AUR <https://aur.archlinux.org/packages/tktray>`__), libnotify and the notification server of your choice,
+    tk, tktray (`AUR <https://aur.archlinux.org/packages/tktray>`__) (or python-gobject or python-pyqt5), 
+    libnotify and the notification server of your choice,
     python-pycryptodome, python-pillow
 
     Then install the application:
