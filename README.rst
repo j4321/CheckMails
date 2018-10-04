@@ -91,4 +91,4 @@ at <j_4321@protonmail.com>.
     :alt: Linux
 .. |License| image:: https://img.shields.io/github/license/j4321/CheckMails.svg
     :target: https://www.gnu.org/licenses/gpl-3.0.en.html
-
+    :alt: License - GPLv3
