@@ -58,6 +58,7 @@ Install
     Then install the application:
     
     ::
+    
         $ sudo python3 setup.py install
 
 You can now launch it from `Menu > Network > CheckMails`. You can launch
