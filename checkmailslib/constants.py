@@ -36,20 +36,22 @@ Constants
 """
 
 
-from re import search
 import hashlib
-from Crypto.Cipher import AES
-from Crypto import Random
 import os
-from configparser import ConfigParser
-from locale import getdefaultlocale
 import gettext
-from subprocess import check_output, CalledProcessError
+import warnings
 import logging
 from logging.handlers import TimedRotatingFileHandler
-import warnings
+from configparser import ConfigParser
+from locale import getdefaultlocale
+from subprocess import check_output, CalledProcessError
+from re import search
 from tkinter import TclVersion
 from tkinter.messagebox import showwarning
+
+from Crypto.Cipher import AES
+from Crypto import Random
+
 
 # --- paths
 PATH = os.path.dirname(__file__)

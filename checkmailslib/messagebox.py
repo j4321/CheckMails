@@ -22,6 +22,7 @@ Custom messagebox
 
 from tkinter import Toplevel
 from tkinter.ttk import Button, Label, Frame
+
 from checkmailslib.constants import IM_ERROR, PhotoImage
 
 

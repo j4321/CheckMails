@@ -19,16 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Configuration dialog
 """
-from re import search
-from os.path import expanduser, join
-from os import listdir, remove
-from checkmailslib.constants import CONFIG, save_config, IMAGE, \
-    TTF_FONTS, TOOLKITS, FONTSIZE, PhotoImage
-from PIL import Image, ImageDraw, ImageFont
+from os import remove
 from tkinter import Toplevel, Menu, StringVar
 from tkinter.messagebox import showinfo
 from tkinter.ttk import Label, Button, Entry, Menubutton, Frame, Style, Combobox
 import tempfile
+
+from PIL import Image, ImageDraw, ImageFont
+
+from checkmailslib.constants import CONFIG, save_config, IMAGE, \
+    TTF_FONTS, TOOLKITS, FONTSIZE, PhotoImage
 
 
 class Config(Toplevel):

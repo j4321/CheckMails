@@ -24,6 +24,7 @@ About dialog
 from webbrowser import open as webOpen
 from tkinter import Text, Toplevel
 from tkinter.ttk import Button, Label
+
 from checkmailslib.constants import ICON_48, PhotoImage
 from checkmailslib.version import __version__
 

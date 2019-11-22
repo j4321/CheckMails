@@ -2,7 +2,7 @@
 # -*- coding:Utf-8 -*-
 """
 CheckMails - System tray unread mail checker
-Copyright 2016 Juliette Monsel <j_4321@protonmail.com>
+Copyright 2016-2019 Juliette Monsel <j_4321@protonmail.com>
 based on code by Michael Lange <klappnase@web.de> copyright 2010
 
 CheckMails is free software: you can redistribute it and/or modify
@@ -26,6 +26,7 @@ system tray manager.
 """
 
 import tkinter
+
 from checkmailslib.constants import PhotoImage
 
 

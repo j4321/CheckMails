@@ -2,7 +2,7 @@
 # -*- coding:Utf-8 -*-
 """
 CheckMails - System tray unread mail checker
-Copyright 2016 Juliette Monsel <j_4321@protonmail.com>
+Copyright 2016-2019 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 System tray icon using Qt.
 """
+import sys
+
 try:
     from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QAction
     from PyQt5.QtGui import QIcon
@@ -27,7 +29,6 @@ except ImportError:
         from PyQt4.QtGui import QApplication, QSystemTrayIcon, QMenu, QAction, QIcon
     except ImportError:
         from PySide.QtGui import QApplication, QSystemTrayIcon, QMenu, QAction, QIcon
-import sys
 
 
 class TrayIcon(QApplication):

@@ -21,11 +21,12 @@ Mailbox Manager
 """
 
 
-from checkmailslib.constants import encrypt, decrypt, LOCAL_PATH, CONFIG,\
-    save_config, ADD, DEL, EDIT, PhotoImage
+import os
 from tkinter import Toplevel
 from tkinter.ttk import Button, Entry, Label, Checkbutton, Frame
-import os
+
+from checkmailslib.constants import encrypt, decrypt, LOCAL_PATH, CONFIG,\
+    save_config, ADD, DEL, EDIT, PhotoImage
 
 
 class Manager(Toplevel):
