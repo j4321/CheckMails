@@ -5,3 +5,4 @@ __pycache__/
 build/
 checkmails.egg-info
 .coverage
+setup.cfg
