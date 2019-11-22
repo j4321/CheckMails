@@ -23,6 +23,7 @@ Main class
 import os
 import traceback
 import logging
+import email
 from imaplib import IMAP4_SSL, IMAP4
 from socket import gaierror
 from threading import Thread
@@ -112,6 +113,7 @@ class CheckMails(Tk):
         self.boxes = {}
         # number of unread mails for each mailbox
         self.nb_unread = {box: 0 for box in self.info_conn}
+        self.unread_msgs = {box: set() for box in self.info_conn}
         # connection, logout and check are done in separate threads for each
         # mailbox so that the system tray icon does not become unresponsive if
         # the process takes some time
@@ -248,7 +250,8 @@ class CheckMails(Tk):
             server, login, password, folder = decrypt(box, self.pwd)
             if server is not None:
                 self.info_conn[box] = (server, (login, password), folder)
-
+                if box not in self.unread_msgs:
+                        self.unread_msgs[box] = set()
         if not self.info_conn:
             self.notif = _("No active mailbox")
             run(["notify-send", "-i", IMAGE2, _("No active mailbox"), _("Use the mailbox manager to configure a mailbox.")])
@@ -526,9 +529,23 @@ class CheckMails(Tk):
                 self.after_cancel(timeout_id)
             except ValueError:
                 pass
-            self.nb_unread[box] = len(messages[0].split())
-            if self.nb_unread[box] > 0:
+            msgs = set(messages[0].split())
+            self.nb_unread[box] = len(msgs)
+            if msgs:
                 self.notif += "%s : %i, " % (box, self.nb_unread[box])
+                new_msgs = sorted(msgs.difference(self.unread_msgs[box]))
+                self.unread_msgs[box] = msgs
+                for msg in new_msgs:
+                    res, data = mail.fetch(msg, '(BODY.PEEK[HEADER])')
+                    if res == 'OK':
+                        m = email.message_from_bytes(data[0][1])
+                        title = "{} [{}]".format(m['Subject'], box)
+                        info = _("From: {From}\nDate: {Date}").format(Date=m['Date'],
+                                                                      From=m['From'])
+                        run(["notify-send", "-i", IMAGE2, title, info])
+            else:
+                self.unread_msgs[box].clear()
+
             logging.info("Unread mails collected for %s" % box)
 
         except (IMAP4.error, ConnectionResetError, TimeoutError) as e:
