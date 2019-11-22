@@ -1,12 +1,13 @@
 CheckMails - System tray unread mail checker
 =============================================
-Copyright 2016-2018 Juliette Monsel <j_4321@protonmail.com>
+Copyright 2016-2019 Juliette Monsel <j_4321@protonmail.com>
 
 Changelog
 ---------
 
 - Version 1.3.0
     * Send notifications for new emails displaying subject, sender and date
+    * Make some notifications optional
 
 - Version 1.2.3
     * Add black border around icons for visibility on clear themes

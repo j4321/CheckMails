@@ -24,6 +24,7 @@ import os
 import traceback
 import logging
 import email
+from email import policy
 from imaplib import IMAP4_SSL, IMAP4
 from socket import gaierror
 from threading import Thread
@@ -533,16 +534,16 @@ class CheckMails(Tk):
             self.nb_unread[box] = len(msgs)
             if msgs:
                 self.notif += "%s : %i, " % (box, self.nb_unread[box])
-                new_msgs = sorted(msgs.difference(self.unread_msgs[box]))
+                if CONFIG.getboolean('General', 'notify_new_unread', fallback=True):
+                    for msg in sorted(msgs.difference(self.unread_msgs[box])):
+                        res, data = mail.fetch(msg, '(BODY.PEEK[HEADER])')
+                        if res == 'OK':
+                            m = email.message_from_bytes(data[0][1], policy=policy.default)
+                            title = "{} [{}]".format(m['Subject'], box)
+                            info = _("From: {From}\nDate: {Date}").format(Date=m['Date'],
+                                                                          From=m['From'])
+                            run(["notify-send", "-i", IMAGE2, title, info])
                 self.unread_msgs[box] = msgs
-                for msg in new_msgs:
-                    res, data = mail.fetch(msg, '(BODY.PEEK[HEADER])')
-                    if res == 'OK':
-                        m = email.message_from_bytes(data[0][1])
-                        title = "{} [{}]".format(m['Subject'], box)
-                        info = _("From: {From}\nDate: {Date}").format(Date=m['Date'],
-                                                                      From=m['From'])
-                        run(["notify-send", "-i", IMAGE2, title, info])
             else:
                 self.unread_msgs[box].clear()
 
@@ -555,9 +556,10 @@ class CheckMails(Tk):
                 pass
             if self.notif != _("Checking...") + "/n":
                 logging.error('%s: %s' % (box, e))
-                notif = self.notif
-                notif += "%s : %s, " % (box, _("Timed out, reconnecting"))
-                run(["notify-send", "-i", IMAGE2, _("Unread mails"), notif])
+                if CONFIG.getboolean('General', 'notify_nb_unread', fallback=True):
+                    notif = self.notif
+                    notif += "%s : %s, " % (box, _("Timed out, reconnecting"))
+                    run(["notify-send", "-i", IMAGE2, _("Unread mails"), notif])
                 nbtot = 0
                 for b, nb in self.nb_unread.items():
                     if b != box:
@@ -609,8 +611,9 @@ class CheckMails(Tk):
             if self.notif != _("Checking...") + "\n":
                 try:
                     self.notif = self.notif[:-2].split("\n")[1]
-                    run(["notify-send", "-i", IMAGE2, _("Unread mails"), self.notif])
                 except IndexError:
+                    pass
+                if force_notify or CONFIG.getboolean("General", "notify_nb_unread", fallback=True):
                     run(["notify-send", "-i", IMAGE2, _("Unread mails"), self.notif])
             elif force_notify:
                 run(["notify-send", "-i", IMAGE2, _("Unread mails"), _("No unread mail")])

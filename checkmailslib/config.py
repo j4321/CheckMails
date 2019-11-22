@@ -22,7 +22,8 @@ Configuration dialog
 from os import remove
 from tkinter import Toplevel, Menu, StringVar
 from tkinter.messagebox import showinfo
-from tkinter.ttk import Label, Button, Entry, Menubutton, Frame, Style, Combobox
+from tkinter.ttk import Label, Button, Entry, Menubutton, Frame, Style, \
+    Combobox, Checkbutton
 import tempfile
 
 from PIL import Image, ImageDraw, ImageFont
@@ -35,7 +36,7 @@ class Config(Toplevel):
     """ Configuration dialog to set times and language. """
 
     def __init__(self, master):
-        Toplevel.__init__(self, master, class_="CheckMails")
+        Toplevel.__init__(self, master, class_="CheckMails", pady=4)
         self.title(_("Preferences"))
 
         style = Style(self)
@@ -49,52 +50,52 @@ class Config(Toplevel):
         self._validate_entry_nb = self.register(self.validate_entry_nb)
 
         # --- Times
-        Label(self,
-              text=_("Time between two checks")).grid(row=0, column=0,
-                                                      padx=(10, 4), pady=(10, 4),
-                                                      sticky="e")
-        Label(self, justify="right",
-              text=_("Maximum time allowed for login or check\n\
-(then the connection is reset)")).grid(row=1, column=0, padx=(10, 4), pady=4, sticky="e")
-        self.time_entry = Entry(self, width=5, justify="center",
+        frame_times = Frame(self)
+        self.time_entry = Entry(frame_times, width=5, justify="center",
                                 validate="key",
                                 validatecommand=(self._validate_entry_nb, "%P"))
-        self.time_entry.grid(row=0, column=1, padx=(4, 0), pady=(10, 4))
         self.time_entry.insert(0, "%g" % (CONFIG.getint("General", "time") / 60000))
-        self.timeout_entry = Entry(self, width=5, justify="center",
+        self.timeout_entry = Entry(frame_times, width=5, justify="center",
                                    validate="key",
                                    validatecommand=(self._validate_entry_nb, "%P"))
-        self.timeout_entry.grid(row=1, column=1, padx=(4, 0), pady=4)
         self.timeout_entry.insert(0, "%g" % (CONFIG.getint("General", "timeout") / 60000))
-        Label(self, text="min").grid(row=0, column=2, padx=(0, 10), pady=(10, 4))
-        Label(self, text="min").grid(row=1, column=2, padx=(0, 10), pady=4)
 
-        frame = Frame(self)
-        frame.grid(row=2, columnspan=3, padx=6, pady=(0, 6))
+        Label(frame_times,
+              text=_("Time between two checks")).grid(row=0, column=0,
+                                                      padx=4, pady=4,
+                                                      sticky="e")
+        Label(frame_times,
+              text=_("Maximum time allowed for login or check\n(then the connection is reset)"),
+              justify="right").grid(row=1, column=0, padx=4, pady=4, sticky="e")
+        self.time_entry.grid(row=0, column=1, padx=0, pady=4)
+        self.timeout_entry.grid(row=1, column=1, padx=0, pady=4)
+        Label(frame_times, text="min").grid(sticky='w', row=0, column=2, padx=0, pady=4)
+        Label(frame_times, text="min").grid(sticky='w', row=1, column=2, padx=0, pady=4)
 
+        frame_GUI = Frame(self)
         # --- Language
-        Label(frame, text=_("Language")).grid(row=0, column=0,
-                                              padx=8, pady=4, sticky="e")
+        Label(frame_GUI, text=_("Language")).grid(row=0, column=0,
+                                                  padx=4, pady=4, sticky="e")
         lang = {"fr": "Français", "en": "English"}
         self.lang = StringVar(self, lang[CONFIG.get("General", "language")])
-        menu_lang = Menu(frame, tearoff=False)
-        Menubutton(frame, menu=menu_lang, width=9,
+        menu_lang = Menu(frame_GUI, tearoff=False)
+        Menubutton(frame_GUI, menu=menu_lang, width=9,
                    textvariable=self.lang).grid(row=0, column=1,
-                                                padx=8, pady=4, sticky="w")
+                                                padx=4, pady=4, sticky="w")
         menu_lang.add_radiobutton(label="English", value="English",
                                   variable=self.lang, command=self.translate)
         menu_lang.add_radiobutton(label="Français", value="Français",
                                   variable=self.lang, command=self.translate)
         # --- gui toolkit
-        Label(frame,
+        Label(frame_GUI,
               text=_("GUI Toolkit for the system tray icon")).grid(row=1, column=0,
-                                                                   padx=8, pady=4,
+                                                                   padx=4, pady=4,
                                                                    sticky="e")
         self.gui = StringVar(self, CONFIG.get("General", "trayicon").capitalize())
-        menu_gui = Menu(frame, tearoff=False)
-        Menubutton(frame, menu=menu_gui, width=9,
+        menu_gui = Menu(frame_GUI, tearoff=False)
+        Menubutton(frame_GUI, menu=menu_gui, width=9,
                    textvariable=self.gui).grid(row=1, column=1,
-                                               padx=8, pady=4, sticky="w")
+                                               padx=4, pady=4, sticky="w")
         for toolkit, b in TOOLKITS.items():
             if b:
                 menu_gui.add_radiobutton(label=toolkit.capitalize(),
@@ -102,10 +103,11 @@ class Config(Toplevel):
                                          variable=self.gui,
                                          command=self.change_gui)
         # --- Font
+        frame_font = Frame(self)
         self.preview_path = tempfile.mktemp(".png", "checkmails_preview")
         w = max([len(f) for f in TTF_FONTS])
         self.fonts = sorted(TTF_FONTS)
-        self.font = Combobox(frame, values=self.fonts, width=(w * 2) // 3,
+        self.font = Combobox(frame_font, values=self.fonts, width=(w * 2) // 3,
                              exportselection=False, state="readonly")
         current_font = CONFIG.get("General", "font")
         if current_font in self.fonts:
@@ -114,22 +116,53 @@ class Config(Toplevel):
             i = 0
         self.font.current(i)
         self.img_prev = PhotoImage(master=self, file=IMAGE)
-        Label(frame, text=_("Font")).grid(row=2, column=0,
-                                          padx=8, pady=4, sticky="e")
-        self.font.grid(row=2, column=1, padx=8, pady=4, sticky="w")
-        self.prev = Label(frame, image=self.img_prev)
-        self.prev.grid(row=2, column=2, padx=8, pady=4)
+        Label(frame_font, text=_("Font")).grid(row=2, column=0,
+                                               padx=4, pady=4, sticky="e")
+        self.font.grid(row=2, column=1, padx=4, pady=4, sticky="w")
+        self.prev = Label(frame_font, image=self.img_prev)
+        self.prev.grid(row=2, column=2, padx=4, pady=4)
         self.update_preview()
         self.font.bind('<<ComboboxSelected>>', self.update_preview)
         self.font.bind_class("ComboboxListbox", '<KeyPress>', self.key_nav)
 
+        # --- notifications
+        frame_notif = Frame(self)
+        self.notify_nb_unread = Checkbutton(frame_notif, text=_('Notifications for number of unread emails'))
+        if CONFIG.getboolean('General', 'notify_nb_unread', fallback=True):
+            self.notify_nb_unread.state(('selected', '!alternate'))
+        else:
+            self.notify_nb_unread.state(('!selected', '!alternate'))
+        self.notify_nb_unread.grid(row=0, padx=4, pady=4, sticky='w')
+
+        self.notify_new_unread = Checkbutton(frame_notif, text=_('Notifications for new emails displaying subject and sender'))
+        if CONFIG.getboolean('General', 'notify_new_unread', fallback=True):
+            self.notify_new_unread.state(('selected', '!alternate'))
+        else:
+            self.notify_new_unread.state(('!selected', '!alternate'))
+        self.notify_new_unread.grid(row=1, padx=4, pady=4, sticky='w')
+
+        # --- Update checks
+        self.confirm_update = Checkbutton(frame_notif,
+                                          text=_("Check for updates on start-up"))
+        self.confirm_update.grid(row=2, padx=4, pady=4, sticky='w')
+        if CONFIG.getboolean('General', 'check_update', fallback=True):
+            self.confirm_update.state(('selected', '!alternate'))
+        else:
+            self.confirm_update.state(('!selected', '!alternate'))
+
         # --- Ok/Cancel
         frame_button = Frame(self)
-        frame_button.grid(row=3, columnspan=3, padx=6, pady=(0, 6))
         Button(frame_button, text="Ok",
                command=self.ok).grid(row=2, column=0, padx=8, pady=4)
         Button(frame_button, text=_("Cancel"),
                command=self.destroy).grid(row=2, column=1, padx=4, pady=4)
+
+        # --- placement
+        frame_times.grid(row=0, padx=10, pady=4, sticky='w')
+        frame_GUI.grid(row=1, padx=10, pady=4, sticky='w')
+        frame_font.grid(row=2, padx=10, pady=4, sticky='w')
+        frame_notif.grid(row=3, padx=10, pady=4, sticky='w')
+        frame_button.grid(row=4, padx=10, pady=4)
 
     def update_preview(self, event=None):
         self.font.selection_clear()
@@ -176,6 +209,9 @@ class Config(Toplevel):
         CONFIG.set("General", "language", self.lang.get().lower()[:2])
         CONFIG.set("General", "font", self.font.get())
         CONFIG.set("General", "trayicon", self.gui.get().lower())
+        CONFIG.set('General', 'notify_nb_unread', str(self.notify_nb_unread.instate(('selected',))))
+        CONFIG.set('General', 'notify_new_unread', str(self.notify_new_unread.instate(('selected',))))
+        CONFIG.set('General', 'check_update', str(self.confirm_update.instate(('selected',))))
         save_config()
         self.destroy()
 
