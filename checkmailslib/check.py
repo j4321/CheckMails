@@ -314,7 +314,7 @@ class CheckMails(Tk):
             timeout_id = self.after(self.timeout, self.timed_out, box, False, True)
             self.boxes[box] = IMAP4_SSL(serveur)
             self.boxes[box].login(*loginfo)
-            self.boxes[box].select(folder)
+            self.boxes[box].select('"%s"' % folder)
             try:
                 self.after_cancel(timeout_id)
             except ValueError:

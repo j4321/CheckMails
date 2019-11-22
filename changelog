@@ -11,6 +11,7 @@ Changelog
     * Catch error when mailbox file does not exist 
     * Send notifications for new emails displaying subject, sender and date
     * Make some notifications optional
+    * Fix bug with folders containing spaces
 
 - Version 1.2.2
     * Add compatibility with pycryptodome as an alternative to pycrypto
