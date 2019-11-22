@@ -20,4 +20,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Version
 """
 
-__version__ = "1.2.3"
+__version__ = "1.3.0"
