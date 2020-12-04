@@ -405,7 +405,7 @@ class CheckMails(Tk):
 
     def connect(self, box):
         """Launch the connection to the mailbox box in a thread """
-        if not (box in self.threads_connect and self.threads_connect[box].isAlive()):
+        if not (box in self.threads_connect and self.threads_connect[box].is_alive()):
             self.threads_connect[box] = Thread(target=self.connect_mailbox,
                                                name='connect_' + box,
                                                daemon=True,
@@ -418,7 +418,7 @@ class CheckMails(Tk):
         launch the logout even if a logout process is active. If reconnect
         is True, launch the connection to box once the logout is done.
         """
-        if force or not (box in self.threads_logout and self.threads_logout[box].isAlive()):
+        if force or not (box in self.threads_logout and self.threads_logout[box].is_alive()):
             self.threads_logout[box] = Thread(target=self.logout_mailbox,
                                               name='logout_' + box,
                                               daemon=True,
@@ -460,7 +460,7 @@ class CheckMails(Tk):
         Check every 20 s if the login to all the mailboxes is done.
         Once it is the case, launch the unread mail check.
         """
-        b = [self.threads_connect[box].isAlive() for box in self.threads_connect]
+        b = [self.threads_connect[box].is_alive() for box in self.threads_connect]
         if len(b) < len(self.info_conn) or True in b:
             logging.info("Waiting for connexion ...")
             try:
@@ -552,7 +552,7 @@ class CheckMails(Tk):
         except ValueError:
             pass
         for box, mail in self.boxes.items():
-            if not self.threads_connect[box].isAlive() and (box not in self.threads_check or not self.threads_check[box].isAlive()):
+            if not self.threads_connect[box].is_alive() and (box not in self.threads_check or not self.threads_check[box].is_alive()):
                 self.threads_check[box] = Thread(target=self.check_mailbox,
                                                  name='check_' + box,
                                                  daemon=True,
@@ -568,7 +568,7 @@ class CheckMails(Tk):
         If force_notify is True, display a notification even if there is no
         unread mail.
         """
-        b = [self.threads_check[box].isAlive() for box in self.threads_check]
+        b = [self.threads_check[box].is_alive() for box in self.threads_check]
         if len(b) < len(self.info_conn) or True in b:
             self.notif_id = self.after(20000, self.notify_unread_mails, force_notify)
         else:
