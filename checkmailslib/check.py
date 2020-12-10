@@ -180,6 +180,10 @@ class CheckMails(Tk):
 
     def reconnect(self):
         self.notify_no_internet = True
+        if self.pwd is None:
+            self.get_info_conn()
+            if self.pwd is None:
+                return
         try:
             self.after_cancel(self.check_id)
         except ValueError:
@@ -235,11 +239,15 @@ class CheckMails(Tk):
                 self.set_password()
             else:
                 self.ask_password()
-        if self.pwd is not None:
-            for box in mailboxes:
-                server, login, password, folder = decrypt(box, self.pwd)
-                if server is not None:
-                    self.info_conn[box] = (server, (login, password), folder)
+
+        if self.pwd is None:
+            self.notif = _("Login required")
+            return
+
+        for box in mailboxes:
+            server, login, password, folder = decrypt(box, self.pwd)
+            if server is not None:
+                self.info_conn[box] = (server, (login, password), folder)
 
         if not self.info_conn:
             self.notif = _("No active mailbox")
@@ -547,6 +555,10 @@ class CheckMails(Tk):
         Check whether there are new mails. If force_notify is True,
         display a notification even if there is no unread mail.
         """
+        if self.pwd is None:
+            self.get_info_conn()
+            if self.pwd is None:
+                return
         self.notif = _("Checking...") + "\n"
         try:
             self.after_cancel(self.timer_id)
