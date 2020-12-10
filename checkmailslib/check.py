@@ -1,8 +1,7 @@
-#! /usr/bin/python3
 # -*- coding:Utf-8 -*-
 """
 CheckMails - System tray unread mail checker
-Copyright 2016-2018 Juliette Monsel <j_4321@protonmail.com>
+Copyright 2016-2020 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,7 +35,10 @@ except ImportError:
 from tkinter import Tk, Toplevel, TclError
 from tkinter.messagebox import showerror, askokcancel
 from tkinter.ttk import Entry, Label, Button, Style
+
 from PIL import Image, ImageDraw, ImageFont
+
+import checkmailslib.constants as cst
 from checkmailslib.trayicon import TrayIcon
 from checkmailslib.constants import IMAGE, ICON, IMAGE2, save_config, FONTSIZE,\
     encrypt, decrypt, LOCAL_PATH, CONFIG, internet_on, TTF_FONTS, ICON_48, \
@@ -139,6 +141,9 @@ class CheckMails(Tk):
 
     def report_callback_exception(self, *args):
         """Log exceptions."""
+        if args[0] is KeyboardInterrupt:
+            logging.error("KeyboardInterrupt")
+            self.quit()
         err = "".join(traceback.format_exception(*args))
         logging.error(err)
 
@@ -178,7 +183,7 @@ class CheckMails(Tk):
         try:
             self.after_cancel(self.check_id)
         except ValueError:
-                pass
+            pass
         self.nb_unread = {box: 0 for box in self.info_conn}
         for box in self.boxes:
             self.logout(box, True, True)
@@ -604,9 +609,18 @@ class CheckMails(Tk):
 
     def ask_password(self):
         """Ask the master password in order to decrypt the mailbox config files."""
+        with open(os.path.join(LOCAL_PATH, '.pwd')) as fich:
+            cryptedpwd = fich.read()
+
+        if cst.KEYRING:  # try getting password from keyring
+            pwd = cst.get_pwd_from_keyring()
+            if pwd is not None and crypt.crypt(pwd, cryptedpwd) == cryptedpwd:
+                # passwords match
+                logging.info('Authentication successful')
+                self.pwd = pwd
+                return
+
         def ok(event=None):
-            with open(os.path.join(LOCAL_PATH, '.pwd')) as fich:
-                cryptedpwd = fich.read()
             pwd = getpwd.get()
             if crypt.crypt(pwd, cryptedpwd) == cryptedpwd:
                 # passwords match
@@ -617,6 +631,7 @@ class CheckMails(Tk):
                 showerror(_('Error'), _('Incorrect password!'))
                 logging.warning('Authentication failed')
                 getpwd.delete(0, "end")
+
         top = Toplevel(self, class_="CheckMails")
         top.title(_("Password"))
         top.resizable(False, False)
@@ -630,6 +645,7 @@ class CheckMails(Tk):
 
     def set_password(self):
         """Set the master password used to encrypt the mailbox config files."""
+
         def ok(event=None):
             pwd = getpwd.get()
             pwd2 = confpwd.get()
@@ -641,6 +657,8 @@ class CheckMails(Tk):
                 top.destroy()
                 self.pwd = pwd
                 logging.info('New password set')
+                if cst.KEYRING:  # try storing password in keyring
+                    cst.store_pwd_in_keyring(pwd)
             else:
                 showerror(_('Error'), _('Passwords do not match!'))
 
@@ -664,6 +682,7 @@ class CheckMails(Tk):
         Change the master password: decrypt all the mailbox config files
         using the old password and encrypt them with the new.
         """
+
         def ok(event=None):
             with open(os.path.join(LOCAL_PATH, '.pwd')) as fich:
                 cryptedpwd = fich.read()
@@ -683,15 +702,15 @@ class CheckMails(Tk):
                     for mailbox in mailboxes:
                         server, login, password, folder = decrypt(mailbox, old)
                         if server is not None:
-                           encrypt(mailbox, pwd, server, login, password, folder)
+                            encrypt(mailbox, pwd, server, login, password, folder)
                     self.pwd = pwd
                     top.destroy()
                     logging.info('Password changed')
-                    return pwd
-                else:
-                    showerror(_('Error'), _('Passwords do not match!'))
-            else:
-                showerror(_('Error'), _('Incorrect password!'))
+                    if cst.KEYRING:  # try storing password in keyring
+                        cst.store_pwd_in_keyring(pwd)
+                    return
+                showerror(_('Error'), _('Passwords do not match!'))
+            showerror(_('Error'), _('Incorrect password!'))
 
         top = Toplevel(self, class_="CheckMails")
         top.iconphoto(True, self.im_icon)

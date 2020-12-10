@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 CheckMails - System tray unread mail checker
-Copyright 2016-2018 Juliette Monsel <j_4321@protonmail.com>
+Copyright 2016-2020 Juliette Monsel <j_4321@protonmail.com>
 
 CheckMails is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -100,6 +99,31 @@ elif TTF_FONTS:
     default_font = list(TTF_FONTS.keys())[0]
 else:
     default_font = ""
+
+# --- keyring
+SERVICE_NAME = "CheckMails system tray unread mail checker"
+USERNAME = os.getlogin()
+
+try:
+    import keyring
+except ImportError:
+    KEYRING = False
+else:
+    KEYRING = True
+
+
+    def store_pwd_in_keyring(pwd):
+        try:
+            keyring.set_password(SERVICE_NAME, USERNAME, pwd)
+        except keyring.errors.KeyringError:
+            return
+
+
+    def get_pwd_from_keyring():
+        try:
+            return keyring.get_password(SERVICE_NAME, USERNAME)
+        except keyring.errors.KeyringError:
+            return
 
 
 # --- read config file
