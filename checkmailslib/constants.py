@@ -127,30 +127,29 @@ else:
 
 
 # --- read config file
+default_config = {
+    "General": {
+        "trayicon": "",
+        "language": "",
+        "font": default_font,
+        "time": "300000",
+        "timeout": "60000",
+        "check_update": "True"
+    },
+    "Mailboxes": {
+        "active": "",
+        "inactive": ""
+    }
+}
+
 CONFIG = ConfigParser()
-if os.path.exists(PATH_CONFIG):
-    CONFIG.read(PATH_CONFIG)
-    LANGUE = CONFIG.get("General", "language")
-    if not CONFIG.has_option("General", "font"):
-        CONFIG.set("General", "font", default_font)
-    elif CONFIG.get("General", "font") not in TTF_FONTS:
-        CONFIG.set("General", "font", default_font)
-    if not CONFIG.has_option("General", "check_update"):
-        CONFIG.set("General", "check_update", "True")
-    if not CONFIG.has_option("General", "trayicon"):
-        CONFIG.set("General", "trayicon", "")
-else:
-    LANGUE = ""
-    CONFIG.add_section("General")
-    CONFIG.add_section("Mailboxes")
-    # time in ms between to checks
-    CONFIG.set("General", "time", "300000")
-    CONFIG.set("General", "timeout", "60000")
+for section, opts in default_config.items():
+    CONFIG.setdefault(section, opts)
+CONFIG.read(PATH_CONFIG)
+LANGUE = CONFIG.get("General", "language")
+
+if CONFIG.get("General", "font") not in TTF_FONTS:
     CONFIG.set("General", "font", default_font)
-    CONFIG.set("General", "check_update", "True")
-    CONFIG.set("Mailboxes", "active", "")
-    CONFIG.set("Mailboxes", "inactive", "")
-    CONFIG.set("General", "trayicon", "")
 
 
 def save_config():
